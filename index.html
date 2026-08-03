@@ -2969,7 +2969,7 @@ function renderCompare(){
 }
 // ===== 기상분석 (통합 탭: 기온/강수/증발산) =====
 const WEATHER={sub:'temp'};
-function renderWeather(){ ({temp:renderWtemp,prec:renderWprec,evap:renderWevap}[WEATHER.sub]||renderWtemp)(); }
+function renderWeather(){ ({temp:renderWtemp,prec:renderWprec,evap:renderWevap,daily:renderWdaily}[WEATHER.sub]||renderWtemp)(); }
 function wxYearRows(yrObs,obsArr,yrFut,a2,a5,oy0,oy1,y0,y1){
   const rows=[];
   (yrObs||[]).forEach((y,i)=>{if(y>=oy0&&y<=oy1)rows.push({y:y,o:(obsArr||[])[i],a:null,b:null});});
@@ -2990,9 +2990,67 @@ function wxYearTablePanel(host,rows,label,unit,dec,tid){
   h+='</tbody></table>'; tw.innerHTML=h; bd.appendChild(tw);
   det.appendChild(bd); p.appendChild(det); host.appendChild(p);
 }
+// ===== 기상분석 · 일별 원자료 (동적 로드) =====
+const WD={st:0,vr:'prec',scn:'s245',y0:2050,y1:2050};
+const WD_VARS=[{v:'prec',t:'강수량',u:'mm'},{v:'tavg',t:'평균기온',u:'℃'},{v:'eto',t:'기준증발산(ETo)',u:'mm'},{v:'ev',t:'증발산(EV)',u:'mm'}];
+const WD_SCN=[{v:'obs',t:'과거관측'},{v:'s245',t:'SSP2-4.5'},{v:'s585',t:'SSP5-8.5'}];
+function wdPad(c){return ('00'+c).slice(-3);}
+window.__DAILY=window.__DAILY||{};
+function renderWdaily(){
+  const v=$('#view'); v.innerHTML=printHead('기상분석 · 일별 원자료','관측소별 일별 실측·시나리오 원자료 · 동적 로드');
+  weatherTabs(v);
+  const fbar=el('div','filters');
+  fbar.appendChild(sel('wd-st','관측소',DB.cat1.stations.map((s,i)=>({v:i,t:s.name+' ('+s.asos+')'})),WD.st));
+  fbar.appendChild(sel('wd-var','변수',WD_VARS.map(x=>({v:x.v,t:x.t})),WD.vr));
+  fbar.appendChild(sel('wd-scn','시나리오',WD_SCN.map(x=>({v:x.v,t:x.t})),WD.scn));
+  fbar.appendChild(sel('wd-y0','시작연도',wtYrsOpt(1973,2100),WD.y0));
+  fbar.appendChild(sel('wd-y1','끝연도',wtYrsOpt(1973,2100),WD.y1));
+  v.appendChild(fbar);
+  $('#wd-st').onchange=e=>{WD.st=+e.target.value;wdDraw();};
+  $('#wd-var').onchange=e=>{WD.vr=e.target.value;wdDraw();};
+  $('#wd-scn').onchange=e=>{WD.scn=e.target.value;wdDraw();};
+  $('#wd-y0').onchange=e=>{WD.y0=+e.target.value;wdDraw();};
+  $('#wd-y1').onchange=e=>{WD.y1=+e.target.value;wdDraw();};
+  const body=el('div');body.id='wd-body';v.appendChild(body);
+  wdDraw();
+}
+function wdDraw(){
+  const body=$('#wd-body'); if(!body)return;
+  body.innerHTML='<div class="note no-print">일별 원자료를 불러오는 중…</div>';
+  const stn=DB.cat1.stations[WD.st], code=stn.asos;
+  const render=(data)=>{
+    body.innerHTML='';
+    if(!data){body.innerHTML='<div class="note no-print">&#9888; 일별 원자료는 <b>웹(GitHub Pages)</b>에서만 제공됩니다. 로컬 파일(file://)로 열면 브라우저 보안정책(CORS)으로 로드되지 않습니다.</div>';return;}
+    const vm=WD_VARS.find(x=>x.v===WD.vr), blk=data[WD.scn];
+    if(!blk||!blk[WD.vr]||!blk[WD.vr].length){body.innerHTML='<div class="note">해당 시나리오에 '+vm.t+' 자료가 없습니다. (예: 과거 자료에는 ETo가 없습니다)</div>';return;}
+    const y0=Math.min(WD.y0,WD.y1),y1=Math.max(WD.y0,WD.y1);
+    const dts=blk.date, vs=blk[WD.vr], pts=[], rows=[];
+    for(let i=0;i<dts.length;i++){const yr=Math.floor(dts[i]/10000);if(yr>=y0&&yr<=y1){pts.push({x:pts.length,y:vs[i],d:dts[i]});rows.push([dts[i],vs[i]]);}}
+    if(!pts.length){body.innerHTML='<div class="note">선택 기간('+y0+'~'+y1+')에 해당 시나리오 자료가 없습니다.</div>';return;}
+    const scnNm=WD_SCN.find(x=>x.v===WD.scn).t, col=WD.scn==='obs'?COL.Observed:(WD.scn==='s245'?COL['SSP2-4.5']:COL['SSP5-8.5']);
+    const cp=el('div','panel');
+    cp.innerHTML='<div class="panel-h"><h3>'+vm.t+' 일별 &mdash; '+stn.name+' ('+scnNm+', '+y0+(y1!=y0?'~'+y1:'')+')</h3><div class="hint">일 단위 원자료 · 단위 '+vm.u+' · '+pts.length+'일</div></div><div class="panel-b" id="wd-chart"></div>';
+    body.appendChild(cp);
+    const labels=pts.map(p=>{const mo=Math.floor(p.d/100)%100,day=p.d%100;return day===1?(mo===1?String(Math.floor(p.d/10000)):mo+'월'):'';});
+    lineChart($('#wd-chart'),[{name:vm.t,color:col,width:1.2,pts:pts}],{labels:labels,unit:vm.u,w:1040,h:300});
+    if(typeof autoZoomChart==='function')autoZoomChart($('#wd-chart'));
+    const tp=el('div','panel');
+    const det=el('details','yr-raw');det.innerHTML='<summary>일별 값 표 펼치기 ('+rows.length+'일) · CSV 내보내기</summary>';
+    const bd=el('div','panel-b');
+    const bar=el('div','filters');bar.style.padding='10px 14px 0';
+    bar.appendChild(exportBar(()=>document.getElementById('wd-table'),'일별원자료_'+stn.name+'_'+vm.t,'일별 원자료 · '+stn.name));
+    bd.appendChild(bar);
+    const tw=el('div','cmp-scroll');
+    let h='<table class="data" id="wd-table"><thead><tr><th>날짜</th><th>'+vm.t+' ('+vm.u+')</th></tr></thead><tbody>';
+    rows.forEach(r=>{const ds=String(r[0]);h+='<tr><td>'+ds.slice(0,4)+'-'+ds.slice(4,6)+'-'+ds.slice(6,8)+'</td><td>'+(r[1]!=null?r[1]:'–')+'</td></tr>';});
+    h+='</tbody></table>';tw.innerHTML=h;bd.appendChild(tw);det.appendChild(bd);tp.appendChild(det);body.appendChild(tp);
+  };
+  if(window.__DAILY[code]) render(window.__DAILY[code]);
+  else fetch('data/asos'+wdPad(code)+'.json').then(r=>r.ok?r.json():null).then(d=>{if(d)window.__DAILY[code]=d;render(d);}).catch(()=>render(null));
+}
 function weatherTabs(v){
   const sb=el('div','filters');
-  sb.appendChild(segCtl('weather-sub','기상 분석',[{v:'temp',t:'기온변화'},{v:'prec',t:'강수변화'},{v:'evap',t:'증발산변화'}],WEATHER.sub));
+  sb.appendChild(segCtl('weather-sub','기상 분석',[{v:'temp',t:'기온변화'},{v:'prec',t:'강수변화'},{v:'evap',t:'증발산변화'},{v:'daily',t:'일별 원자료'}],WEATHER.sub));
   v.appendChild(sb);
   segWire('#weather-sub','v',x=>{WEATHER.sub=x;renderWeather();});
 }
