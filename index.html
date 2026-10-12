@@ -315,6 +315,18 @@ select:focus{outline:0;border-color:var(--accent);box-shadow:0 0 0 3px var(--acc
 .grid2{display:grid;grid-template-columns:1fr 1fr;gap:24px}
 @media(max-width:1080px){.grid2{grid-template-columns:1fr}}
 .subttl{font-size:12.5px;color:var(--muted);font-weight:720;margin-bottom:9px;letter-spacing:.01em}
+.gate-hide{display:none!important}
+.gate-hint{display:flex;align-items:center;gap:14px;flex-wrap:wrap;margin:4px 0 22px;padding:16px 20px;border-radius:var(--radius);
+  background:var(--accent-soft);border:1px dashed color-mix(in srgb,var(--accent) 45%,transparent)}
+.gate-hint .gh-ic{width:34px;height:34px;flex:none;border-radius:50%;display:grid;place-items:center;
+  background:var(--accent);color:#fff;font-weight:800;font-size:16px}
+.gate-hint .gh-t{flex:1;min-width:220px;display:flex;flex-direction:column;gap:3px;word-break:keep-all}
+.gate-hint .gh-t b{font-size:14.5px;color:var(--accent-deep)}
+.gate-hint .gh-t span{font-size:13px;color:var(--ink-soft)}
+.gate-hint .gh-btn{background:var(--accent);border-color:var(--accent);color:#fff;font-weight:700}
+.gate-hint .gh-btn:hover{background:var(--accent-deep);border-color:var(--accent-deep);color:#fff}
+:root[data-theme="dark"] .gate-hint .gh-t b{color:#7FD3EE}
+@media print{.gate-hide{display:block!important}}
 .emptybox{background:#F8FAFC;border:1px dashed var(--line);border-radius:10px;padding:28px 20px;
   color:var(--muted);font-size:13.5px;text-align:center;line-height:1.75}
 .note{font-size:13px;color:#8A5F16;background:#FCF7EA;border:1px solid #F0E3C2;
@@ -588,6 +600,21 @@ body[data-page="home"] .wrap{max-width:none;padding:0}
 .sh-dmg-title b{color:var(--inc)}
 .sh-dmg-src{font-size:11.5px;color:var(--muted)}
 .sh-dmg-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px}
+.sh-clim{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));background:var(--panel);border:1px solid var(--line);
+  border-radius:var(--radius);box-shadow:var(--shadow);margin-bottom:12px}
+.sh-clim>div{padding:12px 16px;border-left:1px solid var(--line-soft);min-width:0}
+.sh-clim>div:first-child{border-left:0}
+.sh-clim-l{font-size:12px;font-weight:700;color:var(--muted);word-break:keep-all}
+.sh-clim-v{font-size:21px;font-weight:850;color:var(--ink);letter-spacing:-.02em;margin-top:3px;white-space:nowrap;font-variant-numeric:tabular-nums}
+.sh-clim-v small{font-size:13px;font-weight:750;margin-left:2px}
+.sh-clim-n{font-size:11.5px;color:var(--muted);margin-top:2px;word-break:keep-all}
+.sh-clim-n b{color:var(--inc);font-weight:750}
+.sh-dmg-msg{margin-top:12px;border-radius:var(--radius);padding:13px 18px;background:var(--accent-soft);
+  border:1px solid color-mix(in srgb,var(--accent) 22%,transparent);display:flex;align-items:center;gap:8px 16px;flex-wrap:wrap}
+.sh-dmg-msg-h{font-size:15.5px;font-weight:850;color:var(--accent-deep);letter-spacing:-.02em;white-space:nowrap}
+.sh-dmg-msg-h i{font-style:normal;color:var(--inc);margin:0 5px}
+.sh-dmg-msg-t{font-size:13px;color:var(--ink-soft);word-break:keep-all;flex:1;min-width:220px}
+:root[data-theme="dark"] .sh-dmg-msg-h{color:#7FD3EE}
 .sh-dmg-card{position:relative;background:var(--panel);border:1px solid var(--line);border-radius:var(--radius);
   padding:15px 16px 14px;box-shadow:var(--shadow);overflow:hidden;text-align:left}
 .sh-dmg-card::before{content:"";position:absolute;left:0;top:0;right:0;height:3px;background:var(--c)}
@@ -599,7 +626,7 @@ body[data-page="home"] .wrap{max-width:none;padding:0}
 .sh-dmg-val small{font-size:14px;font-weight:750;color:var(--c);margin-left:3px}
 .sh-dmg-lbl{font-size:13px;font-weight:700;color:var(--ink-soft);margin-top:6px;word-break:keep-all}
 .sh-dmg-note{font-size:11.5px;color:var(--muted);margin-top:3px;word-break:keep-all}
-@media(max-width:760px){.sh-dmg-grid{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media(max-width:760px){.sh-dmg-grid,.sh-clim{grid-template-columns:repeat(2,minmax(0,1fr))}.sh-clim>div:nth-child(3){border-left:0}.sh-clim>div:nth-child(n+3){border-top:1px solid var(--line-soft)}}
 @media(max-width:360px){.sh-dmg-card{padding:13px 12px 12px}.sh-dmg-val{font-size:21px}}
 .sh-info-btn{margin-top:20px;display:inline-flex;align-items:center;gap:8px;padding:10px 18px;border-radius:100px;
   border:1px solid var(--line);background:var(--panel);color:var(--ink-soft);font-size:12.5px;font-weight:650;cursor:pointer;
@@ -1780,10 +1807,10 @@ function buildSearchIndex(){
   if(window.__SIDX)return window.__SIDX;
   const idx=[];
   DB.cat1.stations.forEach((s,i)=>idx.push({type:'관측소',icon:'station',name:s.name,sub:`ASOS ${s.asos} · 확률강우량 산정`,
-    kw:`${s.name} ${s.asos} 관측소 확률강우량`,go:()=>{C1.st=i;location.hash='#c1';}}));
+    kw:`${s.name} ${s.asos} 관측소 확률강우량`,go:()=>{C1.st=i;C1.go=true;location.hash='#c1';}}));
   DB.cat2.reservoirs.forEach((r,i)=>idx.push({type:'저수지 · 설계홍수량',icon:'reservoir',name:r.name,
     sub:`관측소 ${r.sname} · 유역면적 ${fmt(r.area,1)}km²`,
-    kw:`${r.name} ${r.name_en||''} ${r.nick} 저수지 설계홍수량`,go:()=>{C2.res=i;location.hash='#c2';}}));
+    kw:`${r.name} ${r.name_en||''} ${r.nick} 저수지 설계홍수량`,go:()=>{C2.res=i;C2.go=true;location.hash='#c2';}}));
   DB.cat3.reservoirs.forEach((r,i)=>idx.push({type:'저수지 · 필요저수용량',icon:'reservoir',name:r.name,
     sub:`${r.sido} ${r.sigun} · 총저수량 ${fmt(r.storage,0)}천m³`,
     kw:`${r.name} ${r.sido} ${r.sigun} 저수지 필요저수용량`,
@@ -1990,7 +2017,7 @@ function introRenderTab(t){
 const SH_DMG=[
   {tag:'이상저온',per:'3~4월',v:32297,d:0,u:'ha',l:'과수 개화기 저온 피해',n:'사과 16,870 ha · 복숭아 5,119 ha',c:'#2E9BC4'},
   {tag:'집중호우',per:'7월',v:29686,d:0,u:'ha',l:'농작물 침수·유실',n:'벼 20,294 ha 포함',c:'#1F6FB2'},
-  {tag:'폭염',per:'7~8월',v:2282.4,d:1,u:'ha',l:'인삼 고사 피해',n:'9개 시·도 53개 시·군',c:'#D6483F'},
+  {tag:'폭염',per:'7~8월',v:2282.4,d:1,u:'ha',l:'인삼 고사 피해',n:'9개 시·도 53개 시·군 · 가축 폐사 약 200만 마리',c:'#D6483F'},
   {tag:'가뭄',per:'6~9월',v:11.5,d:1,u:'%',l:'강릉 오봉저수지 저수율',n:'9월 12일 · 역대 최저',c:'#B7791F'},
 ];
 function shDmgRender(){
@@ -2042,9 +2069,19 @@ function renderHome(){
     <div class="sh-dmg">
       <div class="sh-dmg-head">
         <div class="sh-dmg-title">2025년, 이상기후가 남긴 <b>농업 피해</b></div>
-        <div class="sh-dmg-src">출처 : 기상청 「2025년 이상기후 보고서」</div>
+        <div class="sh-dmg-src">출처 : 기상청 「2025년 이상기후 보고서」(2026)</div>
+      </div>
+      <div class="sh-clim">
+        <div><div class="sh-clim-l">연평균기온</div><div class="sh-clim-v">13.7<small>℃</small></div><div class="sh-clim-n">평년 +1.2℃ · <b>역대 2위</b></div></div>
+        <div><div class="sh-clim-l">여름 평균기온</div><div class="sh-clim-v">25.7<small>℃</small></div><div class="sh-clim-n">6~8월 · <b>역대 1위</b></div></div>
+        <div><div class="sh-clim-l">연강수량</div><div class="sh-clim-v">1,325.6<small>mm</small></div><div class="sh-clim-n">평년 1,331.7 mm와 비슷</div></div>
+        <div><div class="sh-clim-l">시간당 100 mm 이상 호우</div><div class="sh-clim-v">15<small>개 지점</small></div><div class="sh-clim-n">7~9월 · 최대 군산 152.2 mm/h</div></div>
       </div>
       <div class="sh-dmg-grid" id="sh-dmg-grid"></div>
+      <div class="sh-dmg-msg">
+        <div class="sh-dmg-msg-h">평년 수준의 연강수량<i>≠</i>안정적인 강수</div>
+        <div class="sh-dmg-msg-t">고온 속에 강원 영동의 장기 가뭄과 중·서·남부의 국지성 집중호우가 한 해에 함께 나타났습니다.</div>
+      </div>
     </div>
     <div class="sh-intro-wrap">
       <div class="si-box" id="si-box"><div class="si-stage" id="si-stage"></div></div>
@@ -2102,20 +2139,29 @@ const SI_SCENES=[
   stats:[{v:29686,d:0,u:'ha',l:'농작물 피해',n:'벼 20,294 ha'},
          {v:179,d:0,u:'만 마리',l:'가축 폐사'},
          {v:7313,d:0,u:'대',l:'농기계 피해'}]},
+ {d:7.0,k:'rain100'},
  {d:6.0,k:'stat',img:'drought',tag:'폭염',col:SI_WARN,period:'7~8월',pan:.30,
   head:'고온에 타들어간 인삼밭',
   sub:'역대급 고온 지속 · 잎과 줄기 고사, 1~2년근은 뿌리까지 고사',
   stats:[{v:2282.4,d:1,u:'ha',l:'인삼 피해면적'},
-         {v:53,d:0,u:'개 시·군',l:'피해 지역',n:'9개 시·도'}]},
+         {v:53,d:0,u:'개 시·군',l:'피해 지역',n:'9개 시·도'},
+         {v:200,d:0,u:'만 마리',l:'가축 폐사',n:'전년 대비 18.3% 증가'}]},
  {d:6.5,k:'stat',img:'drought',tag:'가뭄',col:SI_WARN,period:'6~9월',pan:-.30,
   head:'강릉, 역대 최저 저수율',
   sub:'강원 영동 강수량 232.5 mm · 기상가뭄 177일 (역대 3위)',
   stats:[{v:34.2,d:1,u:'%',l:'평년 대비 강수량',n:'평년 679.3 mm'},
          {v:11.5,d:1,u:'%',l:'오봉저수지 저수율',n:'9월 12일, 역대 최저'},
          {v:158.8,d:1,u:'ha',l:'농림작물 피해'}]},
+ {d:7.0,k:'reservoir'},
  {d:6.5,k:'timeline'},
  {d:6.5,k:'outro'},
 ];
+/* 시간당 100mm 이상(7~9월, 보고서 p36) 상위 8개 + 나머지 7개 */
+const SI_R100=[['군산','9.7.',152.2],['덕적북리(옹진)','8.13.',149.2],['함평','8.3.',147.5],['무안공항','8.3.',142.1],
+  ['서천','9.7.',137.0],['무안','8.3.',122.0],['김포공항','8.13.',118.0],['서산','7.17.',114.9]];
+const SI_R100_REST='운남 110.5 · 주교 105.0 · 가평조종 104.5 · 내촌면 104.0 · 은평 103.5 · 김포 101.5 · 단성 101.0 (㎜/h)';
+/* 강릉 오봉저수지 저수율(보고서 p84) */
+const SI_RSV=[['8.12.',25.4],['8.14.',24.3],['8.20.',21.3],['8.29.',15.7],['9.5.',13.2],['9.6.',12.9],['9.12.',11.5],['9.15.',16.3]];
 const SI_TOTAL=SI_SCENES.reduce((a,s)=>a+s.d,0)-SI_FADE*(SI_SCENES.length-1);
 let SI_STARTS=[],SI_REFS=[],SI_RAF=null;
 let SI_ELAPSED=0, SI_LAST=null, SI_ONSCREEN=true;
@@ -2203,13 +2249,70 @@ function siBuild(){
       });
       r.foot=siText(sc,'여름철 평균기온과 서울 열대야일수는 관측 이래 가장 높은 값을 기록했습니다',
         {top:'604px',fontSize:'22px',fontWeight:600,color:SI_FAINT});r.foot.classList.add('si-c');
+    }else if(s.k==='rain100'){
+      siGrad(sc);
+      r.chip=siEl('si-chip',sc,{left:'108px',top:'70px',background:SI_BLUE});r.chip.textContent='극한호우';
+      r.period=siText(sc,'7~9월',{left:'266px',top:'70px',fontSize:'36px',fontWeight:800,lineHeight:'44px'});
+      r.head=siText(sc,'시간당 100 mm 넘는 비, 15개 지점',{left:'108px',top:'146px',fontSize:'44px',fontWeight:800});
+      const X0=330,W=760,VMAX=160,Y0=240,DY=46;
+      r.ref=siEl('si-rule',sc,{left:(X0+W*100/VMAX)+'px',top:(Y0-12)+'px',width:'2px',height:(DY*SI_R100.length+4)+'px',
+        background:'rgba(214,72,63,.75)',opacity:0,borderRadius:'1px'});
+      r.refl=siText(sc,'100 mm/h',{left:(X0+W*100/VMAX)+'px',top:(Y0-44)+'px',fontSize:'18px',fontWeight:700,color:SI_RED});
+      r.refl.classList.add('si-cx');
+      r.rows=SI_R100.map((d,j)=>{
+        const y=Y0+j*DY;
+        const nm=siText(sc,d[0],{left:'108px',top:(y-1)+'px',fontSize:'22px',fontWeight:700});
+        const dt=siText(sc,d[1],{left:'262px',top:(y+2)+'px',fontSize:'17px',fontWeight:600,color:SI_FAINT});
+        const bar=siEl('si-rule',sc,{left:X0+'px',top:(y+3)+'px',height:'24px',width:(W*d[2]/VMAX)+'px',
+          background:'linear-gradient(90deg,#1F6FB2,'+SI_BLUE+')',borderRadius:'0 6px 6px 0',transformOrigin:'0 50%',opacity:0});
+        const v=siText(sc,'',{left:(X0+W*d[2]/VMAX+12)+'px',top:(y-1)+'px',fontSize:'22px',fontWeight:800});
+        return {nm:nm,dt:dt,bar:bar,v:v,val:d[2]};
+      });
+      r.rest=siText(sc,'그 밖에 '+SI_R100_REST,{left:'108px',top:'628px',fontSize:'18px',fontWeight:600,color:SI_FAINT});
+    }else if(s.k==='reservoir'){
+      siGrad(sc);
+      r.chip=siEl('si-chip',sc,{left:'108px',top:'70px',background:SI_WARN});r.chip.textContent='가뭄';
+      r.period=siText(sc,'8~9월',{left:'266px',top:'70px',fontSize:'36px',fontWeight:800,lineHeight:'44px'});
+      r.head=siText(sc,'강릉 오봉저수지 저수율 변화',{left:'108px',top:'146px',fontSize:'44px',fontWeight:800});
+      const X0=170,X1=1150,Y0=560,YT=250,VMAX=30;
+      const px=i=>X0+(X1-X0)*i/(SI_RSV.length-1), py=v=>Y0-(Y0-YT)*v/VMAX;
+      const NS='http://www.w3.org/2000/svg';
+      const svg=document.createElementNS(NS,'svg');svg.setAttribute('width','1280');svg.setAttribute('height','720');
+      Object.assign(svg.style,{position:'absolute',left:0,top:0,overflow:'visible'});
+      const mk=(t,a)=>{const e=document.createElementNS(NS,t);for(const k in a)e.setAttribute(k,a[k]);svg.appendChild(e);return e;};
+      [0,10,20,30].forEach(v=>{
+        mk('line',{x1:X0-20,x2:X1+20,y1:py(v),y2:py(v),stroke:'rgba(143,166,188,.18)','stroke-width':1.5});
+        const t=mk('text',{x:X0-38,y:py(v)+7,'text-anchor':'end',fill:SI_FAINT,'font-size':19,'font-weight':600});t.textContent=v+'%';
+      });
+      const pts=SI_RSV.map((d,i)=>[px(i),py(d[1])]);
+      const area=mk('path',{d:'M'+pts.map(p=>p.join(',')).join(' L')+' L'+px(SI_RSV.length-1)+','+Y0+' L'+X0+','+Y0+' Z',
+        fill:'rgba(183,121,31,.16)',opacity:0});
+      const line=mk('polyline',{points:pts.map(p=>p.join(',')).join(' '),fill:'none',stroke:SI_WARN,'stroke-width':5,
+        'stroke-linejoin':'round','stroke-linecap':'round'});
+      let len=0;for(let i=1;i<pts.length;i++)len+=Math.hypot(pts[i][0]-pts[i-1][0],pts[i][1]-pts[i-1][1]);
+      line.setAttribute('stroke-dasharray',len);line.setAttribute('stroke-dashoffset',len);
+      const dots=SI_RSV.map((d,i)=>{
+        const low=d[1]===11.5;
+        const c=mk('circle',{cx:pts[i][0],cy:pts[i][1],r:low?11:7,fill:low?SI_RED:SI_WARN,stroke:'#0E1B2E','stroke-width':3,opacity:0});
+        const v=mk('text',{x:pts[i][0],y:pts[i][1]-(low?26:20),'text-anchor':'middle',fill:low?SI_RED:'#E8F1F8',
+          'font-size':low?30:22,'font-weight':800,opacity:0});v.textContent=d[1].toFixed(1)+'%';
+        const x=mk('text',{x:pts[i][0],y:Y0+36,'text-anchor':'middle',fill:SI_DIM,'font-size':19,'font-weight':600,opacity:0});
+        x.textContent=d[0];
+        return {c:c,v:v,x:x};
+      });
+      sc.appendChild(svg);
+      r.svg={area:area,line:line,len:len,dots:dots};
+      r.lowtag=siText(sc,'9월 12일 역대 최저',{left:px(6)+'px',top:(py(11.5)+30)+'px',fontSize:'20px',fontWeight:700,color:SI_RED});
+      r.lowtag.classList.add('si-cx');
+      r.foot=siText(sc,'강원 영동 6~9월 강수량 232.5 mm(평년의 34.2%) · 강릉 기상가뭄 177일(4.19.~10.12.)',
+        {left:'108px',top:'640px',fontSize:'20px',fontWeight:600,color:SI_FAINT});
     }else if(s.k==='timeline'){
       siGrad(sc);
       r.title=siText(sc,'2025년, 농업재해는 끊이지 않았다',{top:'76px',fontSize:'40px',fontWeight:800});r.title.classList.add('si-c');
       r.rule=siEl('si-rule',sc,{left:'600px',top:'132px',width:'80px',height:'3px',background:SI_WARN,opacity:0});
       const IT=[['1월','대설','농축산시설 36.2 ha',SI_BLUE],
                 ['3~4월','이상저온','32,297 ha',SI_BLUE],
-                ['6~9월','집중호우','31,000 ha 이상',SI_BLUE],
+                ['6~9월','집중호우','33,000 ha 이상',SI_BLUE],
                 ['7~8월','폭염','인삼 2,282 ha',SI_RED],
                 ['6~9월','가뭄','저수율 11.5%',SI_WARN]];
       r.line=siEl('si-rule',sc,{left:'150px',top:'329px',width:'980px',height:'3px',
@@ -2297,6 +2400,30 @@ function siDraw(t){
         siSet(c.bd,'opacity',siSeg(lt,1.9+j*.5,3.2+j*.5));
       });
       siSet(r.foot,'opacity',siSeg(lt,4.4,5.4));
+    }else if(s.k==='rain100'||s.k==='reservoir'){
+      const p0=siSeg(lt,.2,1.0),p1=siSeg(lt,.5,1.4);
+      siSet(r.chip,'opacity',p0);siSet(r.chip,'transform','translateY('+((1-siEaseOut(p0))*16).toFixed(2)+'px)');
+      put(r.period,p0,16);put(r.head,p1,26);
+      if(s.k==='rain100'){
+        const pr=siSeg(lt,1.0,1.6);siSet(r.ref,'opacity',pr);siSet(r.refl,'opacity',pr);
+        r.rows.forEach((w,j)=>{
+          const p=siSeg(lt,1.2+j*.22,2.6+j*.22),e=siEaseOut(p);
+          siSet(w.nm,'opacity',p);siSet(w.dt,'opacity',p);
+          siSet(w.bar,'opacity',p>0?1:0);siSet(w.bar,'transform','scaleX('+e.toFixed(3)+')');
+          siSet(w.v,'opacity',p);siTxt(w.v,(w.val*e).toFixed(1));
+        });
+        siSet(r.rest,'opacity',siSeg(lt,4.0,5.0));
+      }else{
+        const g=r.svg,lp=siEaseOut(siSeg(lt,1.2,4.0));
+        siSet(g.line,'strokeDashoffset',(g.len*(1-lp)).toFixed(1));
+        siSet(g.area,'opacity',(siSeg(lt,3.2,4.4)).toFixed(3));
+        g.dots.forEach((d,i)=>{
+          const p=siSeg(lt,1.2+2.8*i/(g.dots.length-1),1.6+2.8*i/(g.dots.length-1)).toFixed(3);
+          siSet(d.c,'opacity',p);siSet(d.v,'opacity',p);siSet(d.x,'opacity',p);
+        });
+        put(r.lowtag,siSeg(lt,4.2,5.0),14);
+        siSet(r.foot,'opacity',siSeg(lt,4.6,5.6));
+      }
     }else if(s.k==='timeline'){
       put(r.title,siSeg(lt,.2,1.0),22);
       const p0=siSeg(lt,.7,1.3);siSet(r.rule,'opacity',p0);siSet(r.rule,'transform','scaleX('+siEaseOut(p0).toFixed(3)+')');
@@ -2751,6 +2878,8 @@ function cmpKey(it){ return it.cat==='c1'?('c1:'+it.method+'|'+it.tt+'|'+it.st) 
 function c4facOpts(){ return [{v:'\uc804\uccb4',t:'\uc591\uc218\uc7a5 \uc120\ud0dd\u2026'}].concat(DB.cat4.stations.map(function(st,i){return {v:i,t:st.station.replace(/_/g,' ')};})); }
 function cmpAdd(cat){
   var it=null;
+  if(cat==='c1'&&!C1.go){ toast('관측소를 먼저 선택하세요'); return; }
+  if(cat==='c2'&&!C2.go){ toast('저수지를 먼저 선택하세요'); return; }
   if(cat==='c1'){ var stn=DB.cat1.stations[C1.st]; it={cat:'c1',method:C1.method,tt:C1.tt,st:C1.st,label:stn.name+' ('+stn.asos+')',sub:C1.method+' \u00b7 '+C1.tt}; }
   else if(cat==='c2'){ var rv=DB.cat2.reservoirs[C2.res]; it={cat:'c2',res:C2.res,label:rv.name,sub:'\ub18d\uc5c5\uc6a9\uc800\uc218\uc9c0'}; }
   else if(cat==='c3'){ if(C3.facility==='\uc804\uccb4'){ toast('\uc800\uc218\uc9c0\ub97c \uba3c\uc800 \uc120\ud0dd\ud558\uc138\uc694'); return; }
@@ -3257,7 +3386,7 @@ function renderCat1(){
   const fbar=el('div','filters');
   fbar.appendChild(segCtl('c1-method','상세화 기법',d.methods.map(m=>({v:m,t:m})),C1.method));
   fbar.appendChild(segCtl('c1-tt','시간 유형',d.timetypes.map(m=>({v:m,t:m})),C1.tt));
-  fbar.appendChild(sel('c1-st','관측소',d.stations.map((s,i)=>({v:i,t:`${s.name} (${s.asos})`})),C1.st));
+  fbar.appendChild(sel('c1-st','관측소',[{v:-1,t:'관측소 선택…'}].concat(d.stations.map((s,i)=>({v:i,t:`${s.name} (${s.asos})`}))),C1.go?C1.st:-1));
   fbar.appendChild(sel('c1-fre','재현빈도',d.freqs.map((f,i)=>({v:i,t:f})),C1.fre));
   fbar.appendChild(el('div','fspacer'));
   fbar.appendChild(exportBar(()=>$('#c1-table'),'확률강우량_결과','확률강우량 산정 결과'));
@@ -3265,16 +3394,64 @@ function renderCat1(){
   v.appendChild(fbar);
   const body=el('div');body.id='c1-body';v.appendChild(body);
   const upd=()=>c1draw();
-  $('#c1-st').onchange=e=>{C1.st=+e.target.value;upd();};
+  $('#c1-st').onchange=e=>{const x=+e.target.value;if(x<0)C1.go=false;else{C1.st=x;C1.go=true;}upd();};
   $('#c1-fre').onchange=e=>{C1.fre=+e.target.value;upd();};
   segWire('#c1-method','v',x=>{C1.method=x;upd();});
   segWire('#c1-tt','v',x=>{C1.tt=x;upd();});
   c1draw();
 }
+/* 조건 선택 전 요약 화면 — 상태객체.go 가 true면 상세까지 모두 표시 */
+function gateOn(st,isDefault){return !!st.go||!isDefault;}
+function gateWire(st,fbar){
+  // 조건 막대에서 값을 고르면(내보내기·비교담기 버튼 제외) 상세 표시로 전환
+  fbar.addEventListener('change',e=>{if(e.target.tagName==='SELECT')st.go=true;},true);
+  fbar.addEventListener('click',e=>{if(e.target.closest('.seg button'))st.go=true;},true);
+}
+function gateApply(st,body,msg,redraw){
+  const kids=[...body.children];
+  const first=kids.findIndex(x=>x.classList.contains('panel'));
+  if(first<0)return;
+  kids.slice(first+1).forEach(x=>x.classList.add('gate-hide'));
+  const h=el('div','gate-hint no-print');
+  h.innerHTML=`<div class="gh-ic">i</div><div class="gh-t"><b>${msg}</b><span>위 조건을 고르면 상세 그래프와 결과표가 나타납니다.</span></div>
+    <button class="btn gh-btn" type="button">전체 결과 펼쳐보기</button>`;
+  h.querySelector('button').onclick=()=>{st.go=true;redraw();};
+  kids[first].after(h);
+}
 function segWire(sel,attr,cb){$(sel).querySelectorAll('button').forEach(b=>b.onclick=()=>{
   $(sel).querySelectorAll('button').forEach(x=>x.classList.toggle('on',x===b));cb(b.dataset[attr]);});}
 function c1get(key,st,fre,dur){return c1index(key)[st+'_'+fre+'_'+dur];}
+function c1summary(){
+  // 관측소 선택 전 — 전체 관측소 평균 요약
+  const d=DB.cat1,key=C1.method+'|'+C1.tt,fre=C1.fre;
+  const body=$('#c1-body');body.innerHTML='';
+  const labels=d.durs.map(x=>x>=1440?(x/1440)+'d':x+'m');
+  const per245=[],per585=[];
+  const byDur=d.durs.map((du,di)=>{const a=[],b=[];
+    d.stations.forEach((s,si)=>{const r=c1get(key,si,fre,di);if(r&&r[3]){a.push((r[4]-r[3])/r[3]*100);b.push((r[5]-r[3])/r[3]*100);}});
+    return {label:labels[di],v245:a.length?+(a.reduce((x,y)=>x+y,0)/a.length).toFixed(2):null,v585:b.length?+(b.reduce((x,y)=>x+y,0)/b.length).toFixed(2):null};});
+  d.stations.forEach((s,si)=>{const a=[],b=[];d.durs.forEach((du,di)=>{const r=c1get(key,si,fre,di);
+    if(r&&r[3]){a.push((r[4]-r[3])/r[3]*100);b.push((r[5]-r[3])/r[3]*100);}});
+    if(a.length){per245.push(a.reduce((x,y)=>x+y,0)/a.length);per585.push(b.reduce((x,y)=>x+y,0)/b.length);}});
+  const k245=stats(per245),k585=stats(per585);
+  const kp=el('div','kpis');
+  kp.appendChild(kpi('SSP2-4.5 증감율 (전체 평균)',fmtSign(k245.mean,2)+'%',' ',`관측소별 ${fmtSign(k245.min,1)} ~ ${fmtSign(k245.max,1)}%`,k245.mean>=0?'up':'down',COL['SSP2-4.5']));
+  kp.appendChild(kpi('SSP5-8.5 증감율 (전체 평균)',fmtSign(k585.mean,2)+'%',' ',`관측소별 ${fmtSign(k585.min,1)} ~ ${fmtSign(k585.max,1)}%`,k585.mean>=0?'up':'down',COL['SSP5-8.5']));
+  kp.appendChild(kpi('증가 관측소 (SSP5-8.5)',per585.filter(x=>x>0).length,'개',`전체 ${per585.length}개 중`,'',COL.Observed));
+  kp.appendChild(kpi('분석 대상',d.stations.length,'개 관측소',`${C1.method} · ${C1.tt} · ${d.freqs[fre]}`,'',COL.SSP));
+  body.appendChild(kp);
+  const p=el('div','panel');
+  p.innerHTML=`<div class="panel-h"><h3>전체 관측소 평균 · ${d.freqs[fre]} — 지속시간별 증감율</h3>${legendScn2()}</div>
+    <div class="panel-b"><div class="hint" style="margin-bottom:8px">${d.stations.length}개 관측소 평균 · ${C1.method} · ${C1.tt}</div><div id="c1-sumdiv"></div></div>`;
+  body.appendChild(p);
+  divergeChart2($('#c1-sumdiv'),byDur,{pct:true,d:1,l:52,w:900,rowH:30});
+  const h=el('div','gate-hint no-print');
+  h.innerHTML=`<div class="gh-ic">i</div><div class="gh-t"><b>관측소를 선택하면 상세 결과가 나타납니다</b>
+    <span>관측소별 확률강우량 그래프, 상세화 기법 비교, 빈도×지속시간 히트맵, 상세 결과표를 볼 수 있습니다.</span></div>`;
+  body.appendChild(h);
+}
 function c1draw(){
+  if(!C1.go){c1summary();return;}
   const d=DB.cat1,key=C1.method+'|'+C1.tt,st=C1.st,fre=C1.fre;
   const stn=d.stations[st];
   const body=$('#c1-body');body.innerHTML='';
@@ -3421,19 +3598,49 @@ function renderCat2(){
   v.innerHTML=printHead('농업용저수지 설계홍수량','첨두홍수량 Qpeak (m³/s) · MOF 기반');
   v.innerHTML+=`<div class="note no-print">ⓘ <span><b>MOF 상세화 확률강우량</b>을 입력으로 산정된 첨두홍수량 결과입니다.</span></div>`;
   const fbar=el('div','filters');
-  fbar.appendChild(sel('c2-res','저수지',d.reservoirs.map((r,i)=>({v:i,t:`${r.name}${r.name_en&&r.name_en!==r.name?' ('+r.name_en+')':''} · ${r.sname}`})),C2.res));
+  fbar.appendChild(sel('c2-res','저수지',[{v:-1,t:'저수지 선택…'}].concat(d.reservoirs.map((r,i)=>({v:i,t:`${r.name}${r.name_en&&r.name_en!==r.name?' ('+r.name_en+')':''} · ${r.sname}`}))),C2.go?C2.res:-1));
   fbar.appendChild(sel('c2-fre','재현빈도',d.freqs.map((f,i)=>({v:i,t:f})),C2.fre));
   fbar.appendChild(el('div','fspacer'));
   fbar.appendChild(exportBar(()=>$('#c2-table'),'설계홍수량_결과','농업용저수지 설계홍수량'));
   fbar.appendChild(cmpAddBtn('c2'));
   v.appendChild(fbar);
   const body=el('div');body.id='c2-body';v.appendChild(body);
-  $('#c2-res').onchange=e=>{C2.res=+e.target.value;c2draw();};
+  $('#c2-res').onchange=e=>{const x=+e.target.value;if(x<0)C2.go=false;else{C2.res=x;C2.go=true;}c2draw();};
   $('#c2-fre').onchange=e=>{C2.fre=+e.target.value;c2draw();};
   c2draw();
 }
 function c2get(res,dur,scn){return c2index()[res+'_'+dur+'_'+scn];}
+function c2summary(){
+  // 저수지 선택 전 — 전체 저수지 평균 요약
+  const d=DB.cat2,fre=C2.fre;
+  const body=$('#c2-body');body.innerHTML='';
+  const labels=d.durs.map(x=>x>=1440?(x/1440)+'d':x+'m');
+  const rate=(ri,di,sc)=>{const o=c2get(ri,di,0),x=c2get(ri,di,sc);const ov=o?o[3+fre]:null,xv=x?x[3+fre]:null;return ov?(xv-ov)/ov*100:null;};
+  const mean=a=>a.length?a.reduce((x,y)=>x+y,0)/a.length:null;
+  const byDur=d.durs.map((du,di)=>{const a=[],b=[];d.reservoirs.forEach((r,ri)=>{const x=rate(ri,di,1),y=rate(ri,di,2);if(x!=null)a.push(x);if(y!=null)b.push(y);});
+    return {label:labels[di],v245:a.length?+mean(a).toFixed(2):null,v585:b.length?+mean(b).toFixed(2):null};});
+  const per245=[],per585=[];
+  d.reservoirs.forEach((r,ri)=>{const a=[],b=[];d.durs.forEach((du,di)=>{const x=rate(ri,di,1),y=rate(ri,di,2);if(x!=null)a.push(x);if(y!=null)b.push(y);});
+    if(a.length){per245.push(mean(a));per585.push(mean(b));}});
+  const k245=stats(per245),k585=stats(per585);
+  const kp=el('div','kpis');
+  kp.appendChild(kpi('SSP2-4.5 증감율 (전체 평균)',fmtSign(k245.mean,2)+'%',' ',`저수지별 ${fmtSign(k245.min,1)} ~ ${fmtSign(k245.max,1)}%`,k245.mean>=0?'up':'down',COL['SSP2-4.5']));
+  kp.appendChild(kpi('SSP5-8.5 증감율 (전체 평균)',fmtSign(k585.mean,2)+'%',' ',`저수지별 ${fmtSign(k585.min,1)} ~ ${fmtSign(k585.max,1)}%`,k585.mean>=0?'up':'down',COL['SSP5-8.5']));
+  kp.appendChild(kpi('증가 저수지 (SSP5-8.5)',per585.filter(x=>x>0).length,'개',`전체 ${per585.length}개 중`,'',COL.Observed));
+  kp.appendChild(kpi('분석 대상',d.reservoirs.length,'개 저수지',`MOF · ${d.freqs[fre]}`,'',COL.SSP));
+  body.appendChild(kp);
+  const p=el('div','panel');
+  p.innerHTML=`<div class="panel-h"><h3>전체 저수지 평균 · ${d.freqs[fre]} — 지속시간별 설계홍수량 증감율</h3>${legendScn2()}</div>
+    <div class="panel-b"><div class="hint" style="margin-bottom:8px">${d.reservoirs.length}개 저수지 평균 · MOF 기반</div><div id="c2-sumdiv"></div></div>`;
+  body.appendChild(p);
+  divergeChart2($('#c2-sumdiv'),byDur,{pct:true,d:1,l:52,w:900,rowH:30});
+  const h=el('div','gate-hint no-print');
+  h.innerHTML=`<div class="gh-ic">i</div><div class="gh-t"><b>저수지를 선택하면 상세 결과가 나타납니다</b>
+    <span>저수지별 지속시간별 홍수량 그래프, 빈도×지속시간 증감율, 상세 결과표를 볼 수 있습니다.</span></div>`;
+  body.appendChild(h);
+}
 function c2draw(){
+  if(!C2.go){c2summary();return;}
   const d=DB.cat2,res=C2.res,fre=C2.fre,r=d.reservoirs[res];
   const body=$('#c2-body');body.innerHTML='';
   const labels=d.durs.map(x=>x>=1440?(x/1440)+'d':x+'m');
@@ -3497,6 +3704,7 @@ function renderCat3(){
   fbar.appendChild(cmpAddBtn('c3'));
   v.appendChild(fbar);
   const body=el('div');body.id='c3-body';v.appendChild(body);
+  gateWire(C3,fbar);
   $('#c3-sido').onchange=e=>{C3.sido=e.target.value;C3.facility='전체';refreshFacOpts();c3draw();};
   $('#c3-fac').onchange=e=>{C3.facility=e.target.value;c3draw();};
   c3draw();
@@ -3562,6 +3770,7 @@ function c3draw(){
     {k:'r245',label:'증감율(SSP2-4.5)',d:2,type:'rate'},{k:'r585',label:'증감율(SSP5-8.5)',d:2,type:'rate'},
     {k:'vnow',label:'등급(현재)',type:'grade'},{k:'v245',label:'등급(SSP2-4.5)',type:'grade'},{k:'v585',label:'등급(SSP5-8.5)',type:'grade'},
   ],dTable,{id:'c3-table',filter:true,filterPh:'시설명·시도·시군으로 검색'});
+  if(!gateOn(C3,C3.sido==='전체'&&C3.facility==='전체'))gateApply(C3,$('#c3-body'),'시도 또는 저수지를 선택해 보세요',c3draw);
 }
 
 /* ================= CAT4 : 조용수량 ================= */
@@ -3578,6 +3787,7 @@ function renderCat4(){
   fbar.appendChild(cmpAddBtn('c4'));
   v.appendChild(fbar);
   const body=el('div');body.id='c4-body';v.appendChild(body);
+  gateWire(C4,fbar);
   $('#c4-region').onchange=e=>{C4.region=e.target.value;c4draw();};
   $('#c4-fac').onchange=e=>{C4.station=(e.target.value==='전체'?'전체':+e.target.value);c4draw();};
   c4draw();
@@ -3623,7 +3833,9 @@ function c4draw(){
       const gp=el('div','panel');
       gp.innerHTML='<div class="panel-h"><h3>관개기 월별 증발산량 · 유효우량</h3><div class="hint">조용수량 증감 해설</div></div>'+
         '<div class="panel-b"><div class="note no-print">&#9432; <span>상단 <b>양수장</b> 선택 상자에서 지구를 고르면, 해당 관측소의 <b>관개기(5~9월) 월별 증발산량·유효우량</b>과 그 <b>증발산량-유효우량 잔차</b>를 과거(1991~2020) · SSP2-4.5 · SSP5-8.5(2031~2070) 막대로 비교합니다.</span></div></div>';
-      mwrap.appendChild(gp); body.appendChild(mwrap); return;
+      mwrap.appendChild(gp); body.appendChild(mwrap);
+      if(!gateOn(C4,C4.region==='전체'&&(C4.station==='전체'||C4.station==null)))gateApply(C4,$('#c4-body'),'지역 또는 양수장을 선택해 보세요',c4draw);
+      return;
     }
     const stn=DB.cat4.stations[sel], MO=DB.cat4.monthly[stn.obscode];
     const MON=['5','6','7','8','9']; const I0=4,I1=9;
@@ -3663,6 +3875,7 @@ function c4draw(){
     groupBar($('#c4-net'), MON, netBars, {xlabel:'월',w:820,h:280});
     if(typeof autoZoomChart==='function'){autoZoomChart($('#c4-ev'));autoZoomChart($('#c4-pe'));autoZoomChart($('#c4-net'));}
   }
+  if(!gateOn(C4,C4.region==='전체'&&(C4.station==='전체'||C4.station==null)))gateApply(C4,$('#c4-body'),'지역 또는 양수장을 선택해 보세요',c4draw);
 }
 
 /* ================= CAT5 : 배수장 홍수량 ================= */
@@ -3684,6 +3897,7 @@ function renderCat5(){
   fbar.appendChild(cmpAddBtn('c5'));
   v.appendChild(fbar);
   const body=el('div');body.id='c5-body';v.appendChild(body);
+  gateWire(C5,fbar);
   $('#c5-pick').onchange=e=>{C5.pick=e.target.value;c5draw();};
   segWire('#c5-group','v',x=>{C5.group=x;C5.pick='전체';refreshC5Pick();c5draw();});
   segWire('#c5-fre','v',x=>{C5.fre=+x;c5draw();});
@@ -3857,6 +4071,7 @@ function c5draw(){
       {k:'r245',label:'증감율(SSP2-4.5)',d:2,type:'rate'},{k:'r585',label:'증감율(SSP5-8.5)',d:2,type:'rate'},
     ],detail,{id:'c5-table',filter:true,filterPh:'지구·구역명·시도로 검색'});
   }
+  if(!gateOn(C5,C5.group==='sido'&&C5.pick==='전체'))gateApply(C5,$('#c5-body'),'분류 기준·시도·빈도·지속시간을 선택해 보세요',c5draw);
 }
 
 /* ================= CAT6 : GCM 영향도 분석 (MME 이탈도) ================= */
@@ -3878,6 +4093,7 @@ function renderCat6(){
   fbar.appendChild(exportBar(()=>$('#c6-table'),'GCM_영향도_분석','GCM별 MME 영향도 분석'));
   v.appendChild(fbar);
   const body=el('div');body.id='c6-body';v.appendChild(body);
+  gateWire(C6,fbar);
   segWire('#c6-method','v',x=>{C6.method=x;c6draw();});
   segWire('#c6-tt','v',x=>{C6.tt=x;c6draw();});
   segWire('#c6-scn','v',x=>{C6.scn=x;c6draw();});
@@ -4127,6 +4343,7 @@ function c6draw(){
     {k:'dev',label:'평균이탈도(%)',d:2,type:'rate'},{k:'adev',label:'영향도(절대,%)',d:2}];
   if(rows.length && rows[0].val!=null){cols.push({k:'val',label:'평균값(mm)',d:1});cols.push({k:'n',label:'표본수',d:0});}
   makeTable($('#c6-tblhost'),cols,rows,{id:'c6-table'});
+  if(!gateOn(C6,true))gateApply(C6,$('#c6-body'),'기법·시나리오·집계 기준을 선택해 보세요',c6draw);
 }
 
 /* ================= CV : 기후변화 취약성 평가 (시군구 MME) ================= */
@@ -4314,7 +4531,7 @@ function fpRender(type,name){
         <button class="btn" id="fp-go-grade-chisu">기능평가 등급산정(치수)</button>
       </div>`;
     $('#fp-go-c3').onclick=()=>fpGoto(()=>{C3.sido=r3.sido;C3.facility=r3.code;location.hash='#c3';});
-    if(r2)$('#fp-go-c2').onclick=()=>fpGoto(()=>{C2.res=r2idx;location.hash='#c2';});
+    if(r2)$('#fp-go-c2').onclick=()=>fpGoto(()=>{C2.res=r2idx;C2.go=true;location.hash='#c2';});
     $('#fp-go-grade-isu').onclick=()=>fpGoto(()=>{GRADE.type='res';GRADE.resMode='isu';location.hash='#grade';});
     $('#fp-go-grade-chisu').onclick=()=>fpGoto(()=>{GRADE.type='res';GRADE.resMode='chisu';location.hash='#grade';});
   }else if(type==='pump'){
