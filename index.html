@@ -421,6 +421,11 @@ table.data th .th-sc{display:block;font-size:10.5px;font-weight:600;color:var(--
 .sectabs{position:sticky;top:53px;z-index:40;display:flex;gap:4px;overflow-x:auto;scrollbar-width:none;
   background:var(--bg);padding:8px 0 0;margin-bottom:12px;border-bottom:1px solid var(--line)}
 .sectabs::-webkit-scrollbar{display:none}
+#ov-grade table.data{width:100%;min-width:0;table-layout:auto}
+#ov-grade table.data th,#ov-grade table.data td{white-space:normal;text-align:left;vertical-align:middle;line-height:1.5;font-size:12.5px}
+#ov-grade table.data th{text-align:center}
+#ov-grade .ovg-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(380px,1fr));gap:18px;align-items:start}
+#ov-grade .ovg-grid>div{min-width:0;overflow:auto}
 .gm-cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(230px,1fr));gap:10px;margin:4px 0 14px}
 .gm-card{text-align:left;border:1.5px solid var(--line);border-radius:12px;background:var(--panel);padding:11px 14px;cursor:pointer;font:inherit;color:var(--ink);transition:border-color .15s,box-shadow .15s}
 .gm-card:hover{border-color:var(--gmc)}
@@ -2669,6 +2674,8 @@ function renderOverview(){
   $('#ovbody').appendChild(p);
   divergeChart2($('#ov-summary'),sum.map(s=>({label:s.label,key:s.key,v245:s.v245,v585:s.v585})),
     {pct:true,d:2,l:210,w:820,rowH:40,onClick:k=>{location.hash='#'+k;}});
+  // ===== 시설관리 기능평가 등급 체계 =====
+  renderGradeOverview();
   // ===== 연구 소개 (제안서 기반) =====
   renderStudyIntro();
   // distribution histograms per scenario for isu modules (참고)
@@ -2681,6 +2688,39 @@ function renderOverview(){
   $('#ovbody').appendChild(p2);
   histDual($('#ov-h3'),DB.cat3.reservoirs.map(r=>r.r245),DB.cat3.reservoirs.map(r=>r.r585),-20,25,5);
   histDual($('#ov-h4'),DB.cat4.stations.map(s=>s.r245),DB.cat4.stations.map(s=>s.r585),-5,5,1);
+}
+/* 개요 탭: 시설관리 기능평가 등급 체계 (등급 정의 · 안전등급 비교 · 산정 방식 · 유형별 인자·결과) */
+const GRADE_DEF_OV=[
+  ['A','미래 기후조건에서도 용수공급·홍수처리 기능에 여유가 충분','현행 관리 유지'],
+  ['B','기능은 유지되나 일부 인자에서 기후영향이 나타남','정기 점검 시 기후영향 모니터링'],
+  ['C','기후변화로 기능 저하 가능성이 있음','점검·진단 시 기후안전도 검토 병행'],
+  ['D','기능 저하가 우려되어 관리가 시급함','보수·보강 검토 대상 (우선순위 부여)'],
+  ['E','미래 기후조건에서 기능 확보가 어려움','우선 보수·보강 또는 구조·운영 개선'],
+];
+function renderGradeOverview(){
+  const p=el('div','panel');p.id='ov-grade';
+  const th='style="background:#1F3A5F;color:#fff"';
+  const defT=`<table class="data"><thead><tr><th ${th}>등급</th><th ${th}>기능 상태</th><th ${th}>관리 조치(안)</th></tr></thead><tbody>${
+    GRADE_DEF_OV.map(([g,d,a])=>`<tr><td style="text-align:center"><span style="display:inline-block;min-width:54px;padding:3px 8px;border-radius:7px;background:${GRADE_INFO[g].c};color:#fff;font-weight:800">${g} ${GRADE_INFO[g].t}</span></td><td>${d}</td><td>${a}</td></tr>`).join('')}</tbody></table>`;
+  const cmpT=`<table class="data"><thead><tr><th ${th}>구분</th><th ${th}>시설물 안전등급 (현행)</th><th ${th}>기능평가 등급 (본 연구)</th></tr></thead><tbody>
+    <tr><td><b>평가 대상</b></td><td>구조물 상태 (부재의 균열·누수 등 결함)</td><td>미래 기후조건에서의 시설 기능 (용수공급·홍수처리)</td></tr>
+    <tr><td><b>판단 근거</b></td><td>안전점검·정밀안전진단</td><td>미래 수문량 증감율 + 시설 제원·취약성 등급·안전점검 등급</td></tr>
+    <tr><td><b>평가 시점</b></td><td>현재 상태</td><td>미래 2031–2070 (SSP2-4.5 · SSP5-8.5)</td></tr>
+    <tr><td><b>등급 체계</b></td><td>A~E 5등급</td><td>A~E 5등급 (동일 체계 적용)</td></tr></tbody></table>
+    <div class="hint" style="margin-top:6px">안전등급이 양호해도 기후요인에 의한 기능 저하는 가능하므로, 같은 A~E 체계로 기능평가 등급을 병행하여 시설관리에 반영합니다.</div>`;
+  const methT=`<table class="data"><thead><tr><th ${th}>구분</th>${GRADE_METHOD_ORDER.map(k=>`<th style="background:${GRADE_METHODS[k].c};color:#fff">${GRADE_METHODS[k].no} ${GRADE_METHODS[k].t}<br><span style="font-weight:500">(${GRADE_METHODS[k].s})</span></th>`).join('')}</tr></thead><tbody>${
+    [['핵심 질문','q'],['산정 방식','f'],['등급 구간(예시)','bands'],['장점','pro'],['단점','con']].map(([lb,f])=>
+      `<tr><td><b>${lb}</b></td>${GRADE_METHOD_ORDER.map(k=>{const v=GRADE_METHODS[k][f];return `<td>${Array.isArray(v)?v.map(b=>b[0]+' '+b[1]).join(' · '):v}</td>`;}).join('')}</tr>`).join('')}</tbody></table>
+    <div class="hint" style="margin-top:6px">② 다차원적 접근의 인자와 가중치는 1단계(인자 반영 여부)·2단계(AHP 가중치) 전문가 설문으로 정합니다. 등급 구간 값은 예시이며 설문·자문을 거쳐 확정합니다.</div>`;
+  p.innerHTML=`<div class="panel-h"><h3>시설관리 기능평가 등급 체계</h3><div class="hint">기 설치 농업 SOC의 미래 기후조건 기능 수준을 A(우수)~E(불량) 5등급으로 평가</div></div>
+    <div class="panel-b">
+      <div class="ovg-grid">
+        <div><div class="subttl">① 기능평가 등급 정의</div>${defT}</div>
+        <div><div class="subttl">② 시설물 안전등급 vs 기능평가 등급</div>${cmpT}</div>
+      </div>
+      <div class="subttl" style="margin-top:18px">③ 등급 산정 방식 (기준안 비교)</div><div style="overflow:auto">${methT}</div>
+    </div>`;
+  $('#ovbody').appendChild(p);
 }
 /* hero reservoir cross-section scene — 과거/미래 수위선을 실제 평균 증감율과 함께 표기 */
 function heroScene(rainUp){
