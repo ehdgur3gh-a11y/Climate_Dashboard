@@ -384,7 +384,7 @@ table.data th .th-sc{display:block;font-size:11px;font-weight:700;color:var(--mu
 .cell-inc{color:var(--inc);font-weight:700}
 .cell-dec{color:var(--dec);font-weight:700}
 .grade{display:inline-block;min-width:20px;text-align:center;font-weight:700;font-size:11px;padding:2.5px 8px;border-radius:6px}
-.g1{background:#E4F3EA;color:#2F7D4F}.g2{background:#FCF3DE;color:#A76D14}.g3{background:var(--inc-soft);color:#BE3A31}
+.g3{background:#E4F3EA;color:#2F7D4F}.g2{background:#FCF3DE;color:#A76D14}.g1{background:var(--inc-soft);color:#BE3A31}
 .vulnmap{border-radius:var(--radius);overflow:hidden;border:1px solid var(--line);background:#fafcfd}
 .vulnmap img{width:100%;display:block}
 .vulnmap-cap{padding:10px 14px;font-size:12px;color:var(--muted);border-top:1px solid var(--line-soft);background:var(--panel)}
@@ -839,9 +839,9 @@ body[data-page="home"] .wrap{max-width:none;padding:0}
 :root[data-theme="dark"] .emptybox{background:rgba(255,255,255,.03);border-color:var(--line)}
 :root[data-theme="dark"] .note{color:#F0CE8A;background:rgba(224,177,92,.12);border-color:rgba(224,177,92,.3)}
 :root[data-theme="dark"] .note b{color:#F5DCA8}
-:root[data-theme="dark"] .g1{background:rgba(90,200,140,.16);color:#7DDBA8}
+:root[data-theme="dark"] .g3{background:rgba(90,200,140,.16);color:#7DDBA8}
 :root[data-theme="dark"] .g2{background:rgba(224,177,92,.16);color:#F0CE8A}
-:root[data-theme="dark"] .g3{background:rgba(255,122,100,.15);color:#FF9683}
+:root[data-theme="dark"] .g1{background:rgba(255,122,100,.15);color:#FF9683}
 :root[data-theme="dark"] .prcon .pro{background:rgba(90,200,140,.13);color:#8FE0B4}
 :root[data-theme="dark"] .prcon .pro b:first-child{color:#7DDBA8}
 :root[data-theme="dark"] .prcon .con{background:rgba(224,177,92,.13);color:#F0CE8A}
@@ -3897,12 +3897,12 @@ function c3draw(){
   const body=$('#c3-body');body.innerHTML='';
   const s245=stats(d.map(r=>r.r245)),s585=stats(d.map(r=>r.r585));
   const nInc=d.filter(r=>r.r585>0).length,nDec=d.filter(r=>r.r585<0).length;
-  const vShift=d.filter(r=>r.v585!=null&&r.vnow!=null&&r.v585>r.vnow).length;
+  const vShift=d.filter(r=>r.v585!=null&&r.vnow!=null&&r.v585<r.vnow).length;
   const kp=el('div','kpis');
   kp.appendChild(kpi('대상 저수지',d.length,'개소',C3.sido==='전체'?'전체 시도':C3.sido,'',COL.Observed));
   kp.appendChild(kpi('SSP2-4.5 증감율 평균',fmtSign(s245.mean,2)+'%',' ',`중앙값 ${fmtSign(s245.med,1)}%`,s245.mean>=0?'up':'down',COL['SSP2-4.5']));
   kp.appendChild(kpi('SSP5-8.5 증감율 평균',fmtSign(s585.mean,2)+'%',' ',`중앙값 ${fmtSign(s585.med,1)}%`,s585.mean>=0?'up':'down',COL['SSP5-8.5']));
-  kp.appendChild(kpi('취약성등급 상승',vShift,'개소','현재 → SSP5-8.5 악화','up',COL.SSP585));
+  kp.appendChild(kpi('취약성등급 악화',vShift,'개소','현재 → SSP5-8.5 악화','up',COL.SSP585));
   body.appendChild(kp);
   // sido grouped dual-scenario, clickable
   const p1=el('div','panel');
@@ -3933,7 +3933,7 @@ function c3draw(){
   // detail table
   const tp=el('div','panel');
   tp.innerHTML=`<div class="panel-h"><h3>저수지별 상세 결과 (${dTable.length}개소)</h3>
-    <div class="hint">필요저수용량 단위 천m³ · 등급 1(양호)~3(취약)${C3.facility!=='전체'?' · 시설 필터 적용중':''}</div></div><div id="c3-tblhost"></div>`;
+    <div class="hint">필요저수용량 단위 천m³ · 등급 1(취약)~3(양호)${C3.facility!=='전체'?' · 시설 필터 적용중':''}</div></div><div id="c3-tblhost"></div>`;
   body.appendChild(tp);
   makeTable($('#c3-tblhost'),[
     {k:'name',label:'시설명',txt:true},{k:'sido',label:'시도',txt:true},{k:'sigun',label:'시군',txt:true},
