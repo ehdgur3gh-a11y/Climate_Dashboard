@@ -494,6 +494,23 @@ table.data th .th-sc{display:block;font-size:var(--fs-2xs);font-weight:400;color
   opacity:0;transform:translateY(10px) scale(.9);pointer-events:none;transition:.2s}
 .backtotop.show{opacity:1;transform:translateY(0) scale(1);pointer-events:auto}
 @media(min-width:761px){.backtotop{bottom:24px}#view{padding-bottom:64px}}
+.sectabs.more-r,.botnav-sub.more-r{-webkit-mask-image:linear-gradient(90deg,#000 80%,transparent);mask-image:linear-gradient(90deg,#000 80%,transparent)}
+.sectabs.more-l,.botnav-sub.more-l{-webkit-mask-image:linear-gradient(90deg,transparent,#000 20%);mask-image:linear-gradient(90deg,transparent,#000 20%)}
+.sectabs.more-l.more-r,.botnav-sub.more-l.more-r{-webkit-mask-image:linear-gradient(90deg,transparent,#000 16%,#000 84%,transparent);mask-image:linear-gradient(90deg,transparent,#000 16%,#000 84%,transparent)}
+.kpi .v.v-txt{word-break:keep-all}
+@media screen and (max-width:760px){
+  .botnav-sub.show{max-height:64px;overflow-y:hidden;transition:max-height .22s ease,padding .22s ease,opacity .18s ease}
+  body.nav-compact .botnav-sub.show{max-height:0;padding-top:0;padding-bottom:0;opacity:0;border-bottom-width:0}
+  body.nav-compact .backtotop,body.nav-compact .toast{bottom:88px}
+  .has-zoom{padding-top:34px}
+  .chart-zoom-btn{top:0;right:0;width:32px;height:32px}
+  .fac-tbl thead{display:none}
+  .fac-tbl,.fac-tbl tbody{display:block;width:100%}
+  .fac-tbl tr{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:6px 10px;padding:12px 2px;border-bottom:1px solid var(--line)}
+  .fac-tbl td{display:block;border:0!important;padding:0!important;text-align:left!important;white-space:normal!important;height:auto!important}
+  .fac-tbl td:first-child,.fac-tbl td:last-child{grid-column:1/-1}
+  .fac-tbl td[data-l]::before{content:attr(data-l);display:block;font-size:var(--fs-2xs);color:var(--muted);font-weight:500;margin-bottom:2px}
+}
 @media(max-width:760px){
   .chart-zoom-btn{display:flex}
   /* 소제목·라벨 줄바꿈/오버플로 방지 */
@@ -1530,6 +1547,7 @@ function lineChart(host,series,opt={}){
 /* ============ diverging bar chart (증감, single value) ============ */
 /* estimate rendered text width (Hangul ~1em, Latin/digits narrower) to avoid label collisions */
 function CW(w){try{return matchMedia('screen and (max-width:760px)').matches?Math.min(w,480):w;}catch(e){return w;}}
+function scrollFade(e){if(!e||e._sf)return;e._sf=1;const f=()=>{const m=e.scrollWidth-e.clientWidth;e.classList.toggle('more-l',m>4&&e.scrollLeft>4);e.classList.toggle('more-r',m>4&&e.scrollLeft<m-4);};e.addEventListener('scroll',f,{passive:true});window.addEventListener('resize',f);requestAnimationFrame(f);setTimeout(f,400);}
 function estTextW(str,fs){
   let w=0;
   for(const ch of String(str)){
@@ -1744,7 +1762,7 @@ function kpi(k,v,u,d,cls,stripe){
   const e=el('div','kpi');
   if(stripe)e.innerHTML=`<div class="stripe" style="background:linear-gradient(90deg,${stripe},${stripe}66)"></div>`;
   const vt=String(v==null?'':v).replace(/<[^>]*>/g,'');
-  const isTxt=typeof v==='string'&&vt.length>12&&!/^[+\-−]?[\d.,]/.test(vt);
+  const isTxt=typeof v==='string'&&vt.length>(/[A-Za-z]/.test(vt)?8:12)&&!/^[+\-−]?[\d.,]/.test(vt);
   e.innerHTML+=`<div class="k">${k}</div><div class="v tnum${isTxt?' v-txt':''}">${v}<span class="u">${u||''}</span></div>`+
     (d?`<div class="d ${cls||''}">${d}</div>`:'');
   return e;
@@ -1895,6 +1913,7 @@ function renderBotnavSub(groupId){
     const active=sub.querySelector('button.on');
     if(active&&typeof active.scrollIntoView==='function')active.scrollIntoView({inline:'center',block:'nearest'});
   });
+  scrollFade(sub);setTimeout(()=>sub.dispatchEvent(new Event('scroll')),60);
 }
 function syncMobileTabs(id){
   const main=$('#botnav-main');
@@ -1952,7 +1971,7 @@ function encodeCurrentState(tabId){
   try{return b64EncodeUnicode(JSON.stringify(obj));}catch(e){return null;}
 }
 function route(){
-  ttHide();
+  ttHide();document.body.classList.remove('nav-compact');
   Object.keys(TABLE_Q).forEach(k=>delete TABLE_Q[k]);
   const raw=(location.hash||'#home').slice(1);
   const sepIdx=raw.indexOf('~');
@@ -1972,7 +1991,7 @@ function route(){
   const lcb=$('#link-copy-btn');
   if(lcb)lcb.style.display=STATE_MAP[p.id]?'':'none';
   drawRuler($('#ruler'));
-  window.scrollTo(0,0);
+  {const de=document.documentElement,sb=de.style.scrollBehavior;de.style.scrollBehavior='auto';void getComputedStyle(de).scrollBehavior;window.scrollTo(0,0);de.style.scrollBehavior=sb;}
   ({home:renderHome,ov:renderOverview,cv:renderClimateVuln,repro:renderRepro,c1:renderCat1,c2:renderCat2,c3:renderCat3,c4:renderCat4,c5:renderCat5,c6:renderCat6,spec:renderSpec,grade:renderGrade,cmp:renderCompare,weather:renderWeather}[p.id]||renderHome)();
   if(window.SEARCH_PENDING && window.SEARCH_PENDING.tab===p.id){ try{ window.SEARCH_PENDING.apply(); }catch(e){} window.SEARCH_PENDING=null; }
   initReveal($('#view'));
@@ -3750,7 +3769,7 @@ function gateApply(st,body,msg,redraw){
   if(first<0)return;
   kids.slice(first+1).forEach(x=>x.classList.add('gate-hide'));
   const h=el('div','gate-hint no-print');
-  h.innerHTML=`<div class="gh-ic">i</div><div class="gh-t"><b>${msg}</b><span>위 조건을 고르거나 오른쪽 버튼을 누르면 상세 그래프와 결과표가 나타납니다.</span></div>
+  h.innerHTML=`<div class="gh-ic">i</div><div class="gh-t"><b>${msg}</b><span>위 조건을 고르거나 ‘전체 결과 펼쳐보기’를 누르면 상세 그래프와 결과표가 나타납니다.</span></div>
     <button class="btn gh-btn" type="button">전체 결과 펼쳐보기</button>`;
   h.querySelector('button').onclick=()=>{st.go=true;redraw();};
   kids[first].after(h);
@@ -5551,7 +5570,7 @@ function renderGrade(){
   // 섹션 탭 바
   const sectabs=el('div','sectabs no-print');sectabs.id='grade-sectabs';
   sectabs.innerHTML=GRADE_SECTIONS.map(s=>`<button type="button" data-sect="${s.id}">${s.label}</button>`).join('');
-  v.appendChild(sectabs);
+  v.appendChild(sectabs);scrollFade(sectabs);
   sectabs.querySelectorAll('button').forEach(btn=>{
     btn.onclick=()=>{GRADE_SECTION=btn.dataset.sect;gradeApplySection();
       const body=document.getElementById('grade-body');
@@ -5676,9 +5695,9 @@ function gradeBuildCfg(){
     const w=gradeW(mode),keys=AHP_SET[mode],sc=GRADE.scn;
     const cov=keys.map(k=>gradeCoverage(mode,k,sc));
     const tot=keys.reduce((a,k,i)=>a+(cov[i][0]>0?w[k]:0),0);
-    const t=el('table','data');t.innerHTML='<thead><tr><th class="txt">인자 (2차 설문)</th><th>가중치'+helpIcon('가중치')+'</th><th>자료 확보</th><th>산정 반영 비중</th><th class="txt">방향</th></tr></thead><tbody>'+
-      keys.map((k,i)=>{const d=GRADE_FACTOR_DEFS[k],c=cov[i],ok=c[0]>0;return `<tr style="${ok?'':'opacity:.55'}"><td class="txt"><b>${d.label}</b></td><td>${fmt(w[k]/keys.reduce((a,kk)=>a+w[kk],0)*100,1)}%</td>`+
-        `<td>${c[0]}/${c[1]}${ok?'':' <span style="color:#C0392B">자료 없음 → 제외</span>'}</td><td>${ok&&tot?fmt(w[k]/tot*100,1)+'%':'–'}</td><td class="txt hint" style="white-space:normal;font-weight:400">${d.hint}</td></tr>`;}).join('')+'</tbody>';
+    const t=el('table','data fac-tbl');t.innerHTML='<thead><tr><th class="txt">인자 (2차 설문)</th><th>가중치'+helpIcon('가중치')+'</th><th>자료 확보</th><th>산정 반영 비중</th><th class="txt">방향</th></tr></thead><tbody>'+
+      keys.map((k,i)=>{const d=GRADE_FACTOR_DEFS[k],c=cov[i],ok=c[0]>0;return `<tr style="${ok?'':'opacity:.55'}"><td class="txt"><b>${d.label}</b></td><td data-l="가중치">${fmt(w[k]/keys.reduce((a,kk)=>a+w[kk],0)*100,1)}%</td>`+
+        `<td data-l="자료 확보">${c[0]}/${c[1]}${ok?'':' <span style="color:#C0392B">자료 없음 → 제외</span>'}</td><td data-l="산정 반영 비중">${ok&&tot?fmt(w[k]/tot*100,1)+'%':'–'}</td><td class="txt hint" style="white-space:normal;font-weight:400">${d.hint}</td></tr>`;}).join('')+'</tbody>';
     const wrap=el('div');wrap.style.overflow='auto';wrap.appendChild(t);host.appendChild(wrap);
     host.appendChild(el('div','hint','※ 시설별로 값이 없는 인자는 그 시설의 산정에서 빼고 나머지 가중치를 다시 100%로 환산합니다. 안전점검 등급은 양수장은 자료가 없고 배수장은 5개 지구만 확보되어 산정에서 빠집니다. 표에는 설문 가중치를 그대로 보여 줍니다.'));
     return;
@@ -6096,7 +6115,7 @@ function initChartZoom(){
 function attachZoom(host,title){
   if(!host)return;
   if(host.querySelector('.chart-zoom-btn'))return;
-  host.style.position=host.style.position||'relative';
+  host.style.position=host.style.position||'relative';host.classList.add('has-zoom');
   const btn=document.createElement('button');
   btn.className='chart-zoom-btn no-print';btn.type='button';btn.setAttribute('aria-label','그래프 확대');
   btn.innerHTML='<svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3M11 8v6M8 11h6"/></svg>';
@@ -6107,7 +6126,9 @@ function attachZoom(host,title){
 function initBackToTop(){
   const btn=$('#backtotop');if(!btn)return;
   btn.onclick=()=>window.scrollTo({top:0,behavior:'smooth'});
-  const onScroll=()=>{btn.classList.toggle('show',window.scrollY>420);};
+  let lastY=window.scrollY;
+  const onScroll=()=>{const y=window.scrollY;btn.classList.toggle('show',y>420);
+    if(Math.abs(y-lastY)>8){document.body.classList.toggle('nav-compact',y>lastY&&y>160);lastY=y;}};
   window.addEventListener('scroll',onScroll,{passive:true});
   onScroll();
 }
