@@ -5616,7 +5616,7 @@ function gradeBuildMethodCards(){
       <div style="overflow:auto"><table><thead><tr><th style="background:#1F3A5F">구분</th>${GRADE_METHOD_ORDER.map(k=>`<th style="background:${GRADE_METHODS[k].c}">${GRADE_METHODS[k].no} ${GRADE_METHODS[k].t}<br><span style="font-weight:400">(${GRADE_METHODS[k].s})</span></th>`).join('')}</tr></thead>
       <tbody>${[['핵심 질문','q'],['산정 방식','f'],['등급 예시','bands'],['음(−) 증감률','neg'],['장점','pro'],['단점','con']].map(([lb,f])=>
         `<tr><td>${lb}</td>${GRADE_METHOD_ORDER.map(k=>{const v=f==='bands'?gradeBandsOf(k,gradeMode()):GRADE_METHODS[k][f];return `<td>${Array.isArray(v)?v.map(b=>b[0]+'\u00a0'+b[1]).join(' · ')+(k==='rate'&&f==='bands'?`<br><span style="color:var(--muted)">(${gradeRateSetLabel()} 기준)</span>`:''):v}</td>`;}).join('')}</tr>`).join('')}</tbody></table></div>
-      <div class="hint" style="margin-top:6px">등급 구간 값은 예시이며, 설문·전문가 자문을 거쳐 확정합니다. ③ 기후성능목표형은 시설이 미래 기후에서 요구되는 기능을 얼마나 달성하는지를 나타냅니다.</div>
+      <div class="hint" style="margin-top:6px">등급 구간 값은 예시이며, 설문·전문가 자문을 거쳐 확정합니다. ③ 기후성능목표형은 시설이 미래 기후에서 요구되는 기능을 얼마나 달성하는지를 나타냅니다. 목표는 최대 90%까지 시설 보강으로 달성하고, 나머지 10%는 담당자 재량으로 두어 재량을 포함해 100%가 되도록 합니다.</div>
     </details>`;
   host.querySelectorAll('.gm-card').forEach(b=>b.onclick=()=>{GRADE.method=b.dataset.m;gradeBuildMethodCards();gradeDraw();});
   host.querySelectorAll('#grade-rateband button').forEach(b=>b.onclick=()=>{GRADE.rateBand=b.dataset.v;gradeBuildMethodCards();gradeDraw();});
@@ -5638,6 +5638,7 @@ function gradeBuildBasis(body,M,mode,scn,withScore){
       <b>미래 요구량</b><span>${mode==='pump'?'미래 조용수량':'미래 설계홍수량'} · ${scn}</span>
       <b>유의</b><span>대체값을 쓰면 달성률 = 100 ÷ (1 + 증감률/100)으로, ① 1차원적 접근과 순위가 같아집니다. ${mode==='pump'?'펌프 설계용량':'여수로·배수문 통수능, 펌프 용량'} 등 시설능력 자료 확보 시 실제 달성률로 대체합니다.</span>`;
   }
+  if(M==='target')data+=`<b>목표 설정</b><span>미래 요구량을 100%로 두고 현재 → 금년 목표 → 최종 목표(최대 90%, A 기준) 순으로 시설을 보강합니다. 나머지 10%는 안전진단 담당자 재량(시설 우선순위 등 현장 여건)으로, <b>재량까지 포함해 100%</b>입니다(별도 가산 없음). 정밀안전진단도 시설 중요도 합 100% 안에서 규정값의 20% 범위로 진단자 조정을 허용합니다.</span>`;
   p.innerHTML=`<div class="panel-h"><h3>${g.no} ${g.t} — 산정 기준</h3><div class="hint">${g.s} · 구간 값은 예시 (설문·자문으로 확정)</div></div>
     <div class="panel-b"><div class="gm-kv"><b>핵심 질문</b><span>${g.q}</span><b>산정식</b><span>${g.f}</span>
       <b>등급 구간</b><span><div class="gm-band">${gradeBandsOf(M,mode).map(b=>`<span style="background:${GRADE_INFO[b[0]].c}">${b[0]} ${GRADE_INFO[b[0]].t} · ${b[1]}</span>`).join('')}</div></span>
