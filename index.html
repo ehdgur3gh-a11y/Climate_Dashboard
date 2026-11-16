@@ -5363,7 +5363,7 @@ const GRADE_METHODS={
   target:{no:'③',t:'기후성능목표형',s:'달성률 기준',c:'#1F8A84',q:'현재 시설이 미래 기후성능목표의 몇 %를 달성하는가?',
     f:'달성률 = 현재 시설능력 ÷ 미래 요구량 × 100',neg:'100% 초과로 표현 (여유 정도까지 반영)',
     pro:'절대평가 · 기존 여유 반영(실제 시설능력은 저수지 이수만 적용) · 사업 전후 비교 가능',con:'시설능력 DB 필요 (치수·양수장·배수장은 과거 설계값으로 대체)',
-    bands:[['A','≥90%'],['B','80~90%'],['C','70~80%'],['D','60~70%'],['E','<60%']]},
+    bands:[['A','≥80%'],['B','70~80%'],['C','60~70%'],['D','50~60%'],['E','<50%']]},
 };
 const GRADE_METHOD_ORDER=['rate','multi','target'];
 // ① 증감률 기준 구간 설정안 (경계값: 시설별_증감량_증감률_등급안_histogram.xlsx, 빈도·조건별 증감률을 두 시나리오 통합해 산정)
@@ -5391,7 +5391,7 @@ function gradeRateBands(mode,set){
 function gradeBandsOf(M,mode){return M==='rate'?gradeRateBands(mode):GRADE_METHODS[M].bands;}
 function gradeRateSetLabel(set){const b=GRADE_RATE_BANDSETS[set||GRADE.rateBand];return b.no+' '+b.t;}
 const GRADE_RATE_OV='구간 설정안(①-1~①-3) 비교 중: ①-1안 고정간격 · ①-2안 분위수 · ①-3안 Jenks (시설 유형별 경계값, 0% 이하는 모두 A)<br><span style="color:var(--muted)">이전 공통 예시: '+GRADE_RATE_OLD+'</span>';
-function gradeTargetBand(a){if(a>=90)return'A';if(a>=80)return'B';if(a>=70)return'C';if(a>=60)return'D';return'E';}
+function gradeTargetBand(a){if(a>=80)return'A';if(a>=70)return'B';if(a>=60)return'C';if(a>=50)return'D';return'E';}
 const GRADE_RATE_SRC={res_isu:'필요저수용량 증감률',res_chisu:'설계홍수량 증감률 (지속시간·재현빈도 평균)',pump:'조용수량 증감률',drain:'배수장 홍수량 증감률 (구역·지속시간·재현빈도 평균)'};
 // 시설능력·미래 요구량: 저수지 이수만 실제 시설능력(유효저수량) 확보, 나머지는 과거 기후 기준 설계값으로 대체
 function gradeCapDemand(mode,raw,scn){
@@ -5616,7 +5616,7 @@ function gradeBuildMethodCards(){
       <div style="overflow:auto"><table><thead><tr><th style="background:#1F3A5F">구분</th>${GRADE_METHOD_ORDER.map(k=>`<th style="background:${GRADE_METHODS[k].c}">${GRADE_METHODS[k].no} ${GRADE_METHODS[k].t}<br><span style="font-weight:400">(${GRADE_METHODS[k].s})</span></th>`).join('')}</tr></thead>
       <tbody>${[['핵심 질문','q'],['산정 방식','f'],['등급 예시','bands'],['음(−) 증감률','neg'],['장점','pro'],['단점','con']].map(([lb,f])=>
         `<tr><td>${lb}</td>${GRADE_METHOD_ORDER.map(k=>{const v=f==='bands'?gradeBandsOf(k,gradeMode()):GRADE_METHODS[k][f];return `<td>${Array.isArray(v)?v.map(b=>b[0]+'\u00a0'+b[1]).join(' · ')+(k==='rate'&&f==='bands'?`<br><span style="color:var(--muted)">(${gradeRateSetLabel()} 기준)</span>`:''):v}</td>`;}).join('')}</tr>`).join('')}</tbody></table></div>
-      <div class="hint" style="margin-top:6px">등급 구간 값은 예시이며, 설문·전문가 자문을 거쳐 확정합니다. ③ 기후성능목표형은 시설이 미래 기후에서 요구되는 기능을 얼마나 달성하는지를 나타냅니다. 목표는 최대 90%까지 시설 보강으로 달성하고, 나머지 10%는 담당자 재량으로 두어 재량을 포함해 100%가 되도록 합니다.</div>
+      <div class="hint" style="margin-top:6px">등급 구간 값은 예시이며, 설문·전문가 자문을 거쳐 확정합니다. ③ 기후성능목표형은 시설이 미래 기후에서 요구되는 기능을 얼마나 달성하는지를 나타냅니다. 목표는 최대 80%(A 기준)까지 시설 보강으로 달성하고, 나머지 20%는 담당자 재량으로 두어 재량을 포함해 100%가 되도록 합니다.</div>
     </details>`;
   host.querySelectorAll('.gm-card').forEach(b=>b.onclick=()=>{GRADE.method=b.dataset.m;gradeBuildMethodCards();gradeDraw();});
   host.querySelectorAll('#grade-rateband button').forEach(b=>b.onclick=()=>{GRADE.rateBand=b.dataset.v;gradeBuildMethodCards();gradeDraw();});
@@ -5638,7 +5638,7 @@ function gradeBuildBasis(body,M,mode,scn,withScore){
       <b>미래 요구량</b><span>${mode==='pump'?'미래 조용수량':'미래 설계홍수량'} · ${scn}</span>
       <b>유의</b><span>대체값을 쓰면 달성률 = 100 ÷ (1 + 증감률/100)으로, ① 1차원적 접근과 순위가 같아집니다. ${mode==='pump'?'펌프 설계용량':'여수로·배수문 통수능, 펌프 용량'} 등 시설능력 자료 확보 시 실제 달성률로 대체합니다.</span>`;
   }
-  if(M==='target')data+=`<b>목표 설정</b><span>미래 요구량을 100%로 두고 현재 → 금년 목표 → 최종 목표(최대 90%, A 기준) 순으로 시설을 보강합니다. 나머지 10%는 안전진단 담당자 재량(시설 우선순위 등 현장 여건)으로, <b>재량까지 포함해 100%</b>입니다(별도 가산 없음). 정밀안전진단도 시설 중요도 합 100% 안에서 규정값의 20% 범위로 진단자 조정을 허용합니다.</span>`;
+  if(M==='target')data+=`<b>목표 설정</b><span>미래 요구량을 100%로 두고 현재 → 금년 목표 → 최종 목표(최대 80%, A 기준) 순으로 시설을 보강합니다. 나머지 20%는 안전진단 담당자 재량(시설 우선순위 등 현장 여건)으로, <b>재량까지 포함해 100%</b>입니다(별도 가산 없음). 정밀안전진단도 시설 중요도 합 100% 안에서 규정값의 20% 범위로 진단자 조정을 허용합니다.</span>`;
   p.innerHTML=`<div class="panel-h"><h3>${g.no} ${g.t} — 산정 기준</h3><div class="hint">${g.s} · 구간 값은 예시 (설문·자문으로 확정)</div></div>
     <div class="panel-b"><div class="gm-kv"><b>핵심 질문</b><span>${g.q}</span><b>산정식</b><span>${g.f}</span>
       <b>등급 구간</b><span><div class="gm-band">${gradeBandsOf(M,mode).map(b=>`<span style="background:${GRADE_INFO[b[0]].c}">${b[0]} ${GRADE_INFO[b[0]].t} · ${b[1]}</span>`).join('')}</div></span>
