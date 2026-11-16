@@ -2209,9 +2209,9 @@ function introRenderTab(t){
         <li>② 다차원적 접근은 기본으로 <b>2차 AHP 설문 인자·가중치</b>(저수지·이수 6, 저수지·치수 4, 양수장 4, 배수장 4개 인자)를 적용하며, 설문 집계 전에는 동일 가중치로 표시됩니다. 자료가 없는 인자는 자동으로 제외되고 나머지 가중치가 재환산됩니다. '직접 설정'으로 바꾸면 기존처럼 인자와 비율을 자유롭게 조정할 수 있습니다.</li>
         <li>'직접 설정' 모드에서는 각 인자에 원하는 비율(숫자)을 자유롭게 입력하면 됩니다 — 합계가 100이 아니어도 되며, 입력한 비율대로 자동으로 100% 가중치로 환산되어 A(우수)~E(불량) 등급이 즉시 재계산됩니다.</li>
         <li>'직접 설정' 모드에서 현재 가중치를 <b>가중치 조합으로 저장</b>하고 여러 개를 비교할 수 있습니다 — 방사형 차트로 "가중치를 어디에 뒀는지"와 "그 결과 등급분포가 어떻게 나오는지"를 나란히 볼 수 있습니다.</li>
-        <li><b>개선효과 시뮬레이션</b>에서 개선할 시설 수를 입력하면, 시급도 상위 시설을 그만큼 개선했다고 가정했을 때 등급분포가 어떻게 바뀌는지 미리 볼 수 있습니다.</li>
+        <li>③ 기후성능목표형에서는 <b>목표 달성 소요량</b> 탭에서 목표 달성률(최종 80% · 중간 70%)에 못 미치는 시설과, 목표까지 더 확보해야 할 시설능력(저수지 이수는 유효저수량 천㎥)을 볼 수 있습니다.</li>
         <li>상세표에는 전국·같은 시도 내 <b>상위 %</b>(작을수록 시급)도 함께 표시됩니다.</li>
-        <li>화면이 길어 상단에 <b>보기 탭</b>(산정 인자·요약·우선순위·개선효과 시뮬레이션)을 두었습니다. 탭을 누르면 해당 내용만 표시됩니다.</li>
+        <li>화면이 길어 상단에 <b>보기 탭</b>(산정 기준·요약·우선순위, ③은 목표 달성 소요량 포함)을 두었습니다. 탭을 누르면 해당 내용만 표시됩니다.</li>
       </ul>
       <h3>GCM 영향도 분석</h3>
       <ul>
@@ -5588,7 +5588,7 @@ const GRADE_SECTIONS=[
   {id:'cfg',label:'산정 인자 · 가중치 조합 비교',panels:['grade-panel-cfg-inline','grade-panel-scenario']},
   {id:'summary',label:'요약',panels:['grade-panel-dist','grade-panel-mcmp','grade-panel-desido']},
   {id:'rank',label:'우선순위',panels:['grade-panel-rank','grade-panel-detail']},
-  {id:'sim',label:'개선효과 시뮬레이션',panels:['grade-panel-sim']},
+  {id:'need',label:'목표 달성 소요량',panels:['grade-panel-need']},
 ];
 let GRADE_SECTION='cfg';
 function gradeApplySection(){
@@ -5802,54 +5802,48 @@ function gradeSaveScenario(){
   gradeDraw();
 }
 function gradeRemoveScenario(i){GRADE_SCENARIOS.splice(i,1);gradeDraw();}
-function gradeDrawSimulation(mode,withScore,currentCounts){keepFocus(()=>gradeDrawSimulation0(mode,withScore,currentCounts));}
-function gradeDrawSimulation0(mode,withScore,currentCounts){
-  const host=$('#grade-sim-body');
+const GRADE_NEED={t:80};
+function gradeDrawNeed(mode,withScore,scn){keepFocus(()=>gradeDrawNeed0(mode,withScore,scn));}
+function gradeDrawNeed0(mode,withScore,scn){
+  const host=$('#grade-need-body');
   if(!host)return;
-  const total=withScore.length;
-  const deCount=currentCounts.D+currentCounts.E;
-  const maxN=Math.min(deCount,total);
-  const n=Math.min(GRADE_SIM.n,maxN||0);
+  const t=GRADE_NEED.t,vol=mode==='res_isu';
+  const L=withScore.filter(r=>r.detail&&r.detail.dem>0&&r.detail.cap>0&&r.score<t).map(r=>{
+    const d=r.detail,goal=d.dem*t/100;return {r,d,goal,add:goal-d.cap,inc:(goal/d.cap-1)*100};
+  }).sort((a,b)=>a.r.score-b.r.score);
+  const tot=L.reduce((s,x)=>s+x.add,0),maxAdd=Math.max(...L.map(x=>x.add),0);
   host.innerHTML='';
-  const ctl=el('div');ctl.style.cssText='display:flex;align-items:center;gap:12px;flex-wrap:wrap;margin-bottom:16px';
-  ctl.innerHTML=`<label style="font-size:13px;font-weight:700;color:var(--ink-soft)">개선할 시설 수</label>
-    <input type="text" inputmode="numeric" pattern="[0-9]*" id="grade-sim-n" min="0" max="${maxN}" step="1" value="${n}"
-      style="width:70px;padding:6px 8px;border:1px solid var(--line);border-radius:7px;font-family:var(--mono);font-size:13px">
-    <span class="hint">(관리 시급 D·E등급 총 ${deCount}개 중 최대 ${maxN}개까지 지정 가능)</span>`;
+  const ctl=el('div');ctl.style.cssText='display:flex;align-items:center;gap:12px;flex-wrap:wrap;margin-bottom:14px';
+  ctl.innerHTML=`<label style="font-size:13px;font-weight:700;color:var(--ink-soft)">목표 달성률</label>
+    <div class="seg" id="grade-need-t">${[[80,'최종 목표 80% (A)'],[70,'중간 목표 70% (B)']].map(([v,lb])=>`<button type="button" class="${t===v?'on':''}" data-v="${v}">${lb}</button>`).join('')}</div>`;
   host.appendChild(ctl);
-  if(!maxN){
-    host.appendChild(el('div','hint','현재 D·E등급 시설이 없어 시뮬레이션할 대상이 없습니다.'));
-    return;
+  const sum=el('div');sum.style.cssText='font-size:14px;line-height:1.7;margin-bottom:12px';
+  sum.innerHTML=`목표 ${t}% 미달 <b>${L.length}개소</b> / 전체 ${withScore.length}개소`
+    +(vol&&L.length?` · 추가 확보 필요 유효저수량 합계 <b>${fmt(tot,0)}천㎥</b> (${scn})`:'');
+  host.appendChild(sum);
+  if(!L.length){host.appendChild(el('div','hint',`목표 ${t}%에 못 미치는 시설이 없습니다.`));}
+  else{
+    const th='style="white-space:nowrap"';
+    const rowsH=L.map((x,k)=>{
+      const g=x.r.grade,gc=GRADE_INFO[g]?GRADE_INFO[g].c:'#999';
+      const bar=vol?`<div class="vulnbar-track" style="min-width:90px"><div class="vulnbar-seg" style="width:${Math.max(maxAdd?x.add/maxAdd*100:0,3)}%;background:${GRADE_INFO.A.c}"></div></div>`:'';
+      return `<tr><td>${k+1}</td><td style="text-align:left"><b>${x.r.name}</b> <span style="color:var(--muted)">${x.r.sido||''}</span></td>
+        <td>${fmt(x.r.score,1)}% <span style="display:inline-block;min-width:18px;padding:0 4px;border-radius:4px;color:#fff;background:${gc}">${g}</span></td>`
+        +(vol?`<td>${fmt(x.d.cap,0)}</td><td>${fmt(x.goal,0)}</td><td><b>+${fmt(x.add,0)}</b></td><td>${fmt(tot?x.add/tot*100:0,1)}%${bar}</td>`:'')
+        +`<td>+${fmt(x.inc,1)}%</td></tr>`;
+    }).join('');
+    const wrap=el('div');wrap.style.overflow='auto';
+    wrap.innerHTML=`<table class="data"><thead><tr><th ${th}>순</th><th ${th}>시설</th><th ${th}>현재 달성률</th>`
+      +(vol?`<th ${th}>현재 유효저수량<br>(천㎥)</th><th ${th}>목표 시 필요량<br>(천㎥)</th><th ${th}>추가 확보량<br>(천㎥)</th><th ${th}>합계 대비</th>`:'')
+      +`<th ${th}>필요 시설능력<br>증가율</th></tr></thead><tbody>${rowsH}</tbody></table>`;
+    host.appendChild(wrap);
   }
-  const sorted=[...withScore].sort((a,b)=>b.urg-a.urg);
-  const improved=new Set(sorted.slice(0,n).map(r=>r.name));
-  const afterCounts={A:0,B:0,C:0,D:0,E:0};
-  withScore.forEach(r=>{
-    if(improved.has(r.name))afterCounts.B++; // 개선 시 B등급(양호) 수준으로 가정
-    else afterCounts[r.grade]++;
-  });
-  const cmpWrap=el('div');cmpWrap.style.cssText='display:flex;flex-direction:column;gap:8px';
-  ['A','B','C','D','E'].forEach(g=>{
-    const before=currentCounts[g],after=afterCounts[g];
-    const pctB=total?before/total*100:0,pctA=total?after/total*100:0;
-    const row=el('div','vulnbar-row');
-    row.innerHTML=`<div class="lb" style="width:70px">${g} (${GRADE_INFO[g].t})</div>
-      <div class="vulnbar-track"><div class="vulnbar-seg" style="width:${Math.max(pctB,pctB>0?4:0)}%;background:${GRADE_INFO[g].c};opacity:.35">${pctB>=8?before:''}</div></div>
-      <div class="vulnbar-track"><div class="vulnbar-seg" style="width:${Math.max(pctA,pctA>0?4:0)}%;background:${GRADE_INFO[g].c}">${pctA>=8?after:''}</div></div>
-      <div style="width:110px;flex:none;font-size:11px;color:var(--muted);text-align:right">${before}→${after}개</div>`;
-    cmpWrap.appendChild(row);
-  });
-  const legend=el('div','legend');legend.style.marginBottom='10px';
-  legend.innerHTML=`<span><i class="dot" style="background:var(--muted);opacity:.35"></i>개선 전</span><span><i class="dot" style="background:var(--muted)"></i>개선 후(상위 ${n}개 → B등급 가정)</span>`;
-  host.appendChild(legend);
-  host.appendChild(cmpWrap);
-  const deAfter=afterCounts.D+afterCounts.E;
-  const summary=el('div','hint');summary.style.marginTop='12px';
-  summary.textContent=`상위 ${n}개 시설을 개선하면 관리 시급(D·E) 시설이 ${deCount}개 → ${deAfter}개로 ${deCount-deAfter}개 줄어듭니다 (${total?fmt(deCount/total*100,1):0}% → ${total?fmt(deAfter/total*100,1):0}%).`;
-  host.appendChild(summary);
-  $('#grade-sim-n').oninput=e=>{GRADE_SIM.n=Math.max(0,Math.min(maxN,+e.target.value||0));gradeDrawSimulation(mode,withScore,currentCounts);};
+  const note=el('div','hint');note.style.marginTop='10px';
+  note.innerHTML=vol?'※ 달성률이 낮은 순서입니다. 유효저수량은 현재 확보 자료(총저수량과 같은 값)를 사용해 원자료 확인 후 수치가 바뀔 수 있습니다.'
+    :'※ 치수·양수장·배수장은 과거 설계값을 시설능력으로 대체한 참고치이므로 필요 증가율만 표시합니다. 시설능력 자료 확보 후 실제 소요량으로 대체합니다.';
+  host.appendChild(note);
+  host.querySelectorAll('#grade-need-t button').forEach(b=>b.onclick=()=>{GRADE_NEED.t=+b.dataset.v;gradeDrawNeed(mode,withScore,scn);});
 }
-const GRADE_SIM={n:5};
 function gradeDraw(){keepFocus(gradeDraw0);}
 function gradeDraw0(){
   const body=$('#grade-body');body.innerHTML='';
@@ -5857,6 +5851,7 @@ function gradeDraw0(){
   const M=GRADE_METHODS[GRADE.method]?GRADE.method:'multi',GM=GRADE_METHODS[M],RK=gradeMethodRK(M);
   const {rows,active,results,withScore,gradeCounts}=gradeCompute(mode,scn,gradeF(mode),gradeW(mode),M);
   {const cb=document.querySelector('#grade-sectabs button[data-sect="cfg"]');if(cb)cb.textContent=M==='multi'?'산정 인자 · 가중치 조합 비교':'산정 기준';}
+  {const nb=document.querySelector('#grade-sectabs button[data-sect="need"]');if(nb)nb.style.display=M==='target'?'':'none';if(M!=='target'&&GRADE_SECTION==='need')GRADE_SECTION='cfg';}
   const modeLabel={res_isu:'저수지·이수',res_chisu:'저수지·치수',pump:'양수장 지구',drain:'배수장 지구'}[mode];
   // ===== 요약 카드 (증권사 앱 스타일 핵심 결론) =====
   const worst=gradeCounts.D+gradeCounts.E;
@@ -6015,11 +6010,13 @@ function gradeDraw0(){
     });
     $('#grade-de-sido').appendChild(deHost);
   }
-  const simP=el('div','panel');simP.id='grade-panel-sim';
-  simP.innerHTML=`<div class="panel-h"><h3>개선효과 시뮬레이션 — 개선 시 등급분포 변화</h3><div class="hint">${M==='multi'?'종합점수가 가장 높은':(M==='rate'?'증감률이 가장 큰':'달성률이 가장 낮은')}(가장 시급한) 시설 순으로 N개를 "개선 완료"로 가정했을 때 결과입니다</div></div>
-    <div class="panel-b" id="grade-sim-body"></div>`;
-  body.appendChild(simP);
-  gradeDrawSimulation(mode,withScore,gradeCounts);
+  if(M==='target'){
+    const needP=el('div','panel');needP.id='grade-panel-need';
+    needP.innerHTML=`<div class="panel-h"><h3>목표 달성 소요량 — 목표 달성률까지 더 확보할 시설능력</h3><div class="hint">미래 요구량(${scn}) × 목표 달성률 − 현재 시설능력 · 나머지(최대 20%)는 담당자 재량으로 소요량에 넣지 않습니다</div></div>
+    <div class="panel-b" id="grade-need-body"></div>`;
+    body.appendChild(needP);
+    gradeDrawNeed(mode,withScore,scn);
+  }
   const rp=el('div','panel');rp.id='grade-panel-rank';
   rp.innerHTML=`<div class="panel-h"><h3>${M==='multi'?'종합점수':RK.lb.replace('(%)','')} 상·하위 시설</h3><div class="hint">${M==='multi'?'점수가 높을수록(우선순위↑) 관리가 시급한 시설입니다 · 막대는 50점 기준 좌·우':(M==='rate'?'증감률이 클수록 관리가 시급한 시설입니다 (0% 기준)':'달성률이 낮을수록 관리가 시급한 시설입니다 (100% 기준 · 200% 초과는 막대를 200%에서 끊어 표시)')}</div></div>
     <div class="panel-b" id="grade-rank"></div>`;
