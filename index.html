@@ -5424,7 +5424,9 @@ function gradeQuint(mode,key){
   const q=p=>{const i=(v.length-1)*p,lo=Math.floor(i),hi=Math.ceil(i);return v[lo]+(v[hi]-v[lo])*(i-lo);};
   return [q(.2),q(.4),q(.6),q(.8)];
 }
-function gradeTargetQts(mode){const q={};GRADE_DISC_SET[mode].forEach(k=>{if(k==='ratio'||k==='benefit')q[k]=gradeQuint(mode,k);});return q;}
+// 유역배율·수혜면적: 5분위 경계를 정돈한 고정 구간 (11/19 확정, 2안)
+const GRADE_DISC_BINS={res_isu:{ratio:[3,4,6,10],benefit:[50,75,100,150]},pump:{benefit:[30,100,200,300]}};
+function gradeTargetQts(mode){const q={},b=GRADE_DISC_BINS[mode]||{};GRADE_DISC_SET[mode].forEach(k=>{if(b[k])q[k]=b[k];});return q;}
 function gradeDiscPoint(mode,key,v,qt){
   if(v==null||isNaN(v))return null;
   if(key==='vuln'||key==='vuln_fld'||key==='vuln_sido')return (roundGrade(v)-1)*10;
@@ -5443,8 +5445,8 @@ function gradeDiscRule(mode,k,qt){
   if(k==='prerel')return '설치 20 · 미설치 0점';
   if(k==='drcap')return '기존 배제능력 ÷ 미래 홍수량: 1.0 이상 20 · 0.75~1.0 15 · 0.5~0.75 10 · 0.25~0.5 5 · 0.25 미만 0점 (기존 배수장 없음 = 0점)';
   if(!qt)return '자료 없음';
-  if(k==='ratio')return `5분위(작을수록 불리): ${f(qt[0],2)} 이하 0 · ~${f(qt[1],2)} 5 · ~${f(qt[2],2)} 10 · ~${f(qt[3],2)} 15 · ${f(qt[3],2)} 초과 20점`;
-  if(k==='benefit')return `5분위(넓을수록 불리): ${f(qt[3],0)}ha 초과 0 · ${f(qt[2],0)}~${f(qt[3],0)} 5 · ${f(qt[1],0)}~${f(qt[2],0)} 10 · ${f(qt[0],0)}~${f(qt[1],0)} 15 · ${f(qt[0],0)}ha 이하 20점`;
+  if(k==='ratio')return `작을수록 불리: ${qt[0]}배 이하 0 · ${qt[0]}~${qt[1]}배 5 · ${qt[1]}~${qt[2]}배 10 · ${qt[2]}~${qt[3]}배 15 · ${qt[3]}배 초과 20점`;
+  if(k==='benefit')return `넓을수록 불리: ${qt[3]}ha 초과 0 · ${qt[2]}~${qt[3]}ha 5 · ${qt[1]}~${qt[2]}ha 10 · ${qt[0]}~${qt[1]}ha 15 · ${qt[0]}ha 이하 20점`;
   return '';
 }
 function gradeTargetEval(mode,raw,scn,qts){
