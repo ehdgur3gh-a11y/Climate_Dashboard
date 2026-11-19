@@ -2073,16 +2073,16 @@ function buildSearchIndex(){
   });
   // 시설관리 기능평가 등급 산정 (08번 탭) — 부문별 진입점
   idx.push({type:'시설관리 기능평가 등급 산정',icon:'grade',name:'저수지 이수 등급산정',
-    sub:'취약성등급·증감률·관개면적당 유효저수량·유역배율·수혜면적·안전점검 등급 조합 A~E',
+    sub:'취약성등급·증감률·관개면적당 유효저수량·유역배율·수혜면적·안전등급 조합 A~E',
     kw:'저수지 이수 등급산정 기능평가 등급 산정 시설관리 가뭄',go:()=>{GRADE.type='res';GRADE.resMode='isu';location.hash='#grade';}});
   idx.push({type:'시설관리 기능평가 등급 산정',icon:'grade',name:'저수지 치수 등급산정',
-    sub:'취약성등급·증감률·사전방류수문·안전점검 등급 조합 A~E',
+    sub:'취약성등급·증감률·사전방류수문·안전등급 조합 A~E',
     kw:'저수지 치수 등급산정 기능평가 등급 산정 시설관리 홍수',go:()=>{GRADE.type='res';GRADE.resMode='chisu';location.hash='#grade';}});
   idx.push({type:'시설관리 기능평가 등급 산정',icon:'grade',name:'양수장 지구 등급산정',
-    sub:'시도 평균 취약성등급·증감률·수혜면적 조합 A~E (안전점검 등급은 자료 확보 시 반영)',
+    sub:'시도 평균 취약성등급·증감률·수혜면적 조합 A~E (안전등급은 자료 확보 시 반영)',
     kw:'양수장 지구 등급산정 기능평가 등급 산정 시설관리',go:()=>{GRADE.type='pump';location.hash='#grade';}});
   idx.push({type:'시설관리 기능평가 등급 산정',icon:'grade',name:'배수장 지구 등급산정',
-    sub:'시도 평균 취약성등급·증감률·홍수배제시설 규모 조합 A~E (안전점검 등급은 5개 지구만 확보되어 미반영)',
+    sub:'시도 평균 취약성등급·증감률·홍수배제시설 규모 조합 A~E (안전등급은 5개 지구만 확보되어 미반영)',
     kw:'배수장 지구 등급산정 기능평가 등급 산정 시설관리',go:()=>{GRADE.type='drain';location.hash='#grade';}});
   // 분석 메뉴 — 메뉴 이름·주요 용어로 찾기
   const MENU_KW={ov:'요약 종합 개요',cv:'취약성 등급 지도 시군구',weather:'기온 강수 증발 증발산 Penman 극한강수 Rx1day R95p',
@@ -2888,7 +2888,7 @@ function renderGradeOverview(){
     GRADE_DEF_OV.map(([g,d,a])=>`<tr><td style="text-align:center"><span style="display:inline-block;min-width:54px;padding:3px 8px;border-radius:7px;background:${GRADE_INFO[g].c};color:#fff;font-weight:700">${g} ${GRADE_INFO[g].t}</span></td><td>${d}</td><td>${a}</td></tr>`).join('')}</tbody></table>`;
   const cmpT=`<table class="data"><thead><tr><th ${th}>구분</th><th ${th}>시설물 안전등급 (현행)</th><th ${th}>기능평가 등급 (본 연구)</th></tr></thead><tbody>
     <tr><td><b>평가 대상</b></td><td>구조물 상태 (부재의 균열·누수 등 결함)</td><td>미래 기후조건에서의 시설 기능 (용수공급·홍수처리)</td></tr>
-    <tr><td><b>판단 근거</b></td><td>안전점검·정밀안전진단</td><td>미래 수문량 증감률 + 시설 제원·취약성 등급·안전점검 등급</td></tr>
+    <tr><td><b>판단 근거</b></td><td>안전점검·정밀안전진단</td><td>미래 수문량 증감률 + 시설 제원·취약성 등급·안전등급</td></tr>
     <tr><td><b>평가 시점</b></td><td>현재 상태</td><td>미래 2031–2070 (SSP2-4.5 · SSP5-8.5)</td></tr>
     <tr><td><b>등급 체계</b></td><td>A~E 5등급</td><td>A~E 5등급 (동일 체계 적용)</td></tr></tbody></table>
     <div class="hint" style="margin-top:6px">안전등급이 양호해도 기후요인에 의한 기능 저하는 가능하므로, 같은 A~E 체계로 기능평가 등급을 병행하여 시설관리에 반영합니다.</div>`;
@@ -5341,7 +5341,7 @@ const GRADE_FACTOR_DEFS={
   canal_loss:{label:'수로손실',hint:'값이 클수록(효율↓) 우선순위 ↑',modes:['pump']},
   infiltration:{label:'침투량',hint:'값이 클수록(손실↑) 우선순위 ↑',modes:['pump']},
   flowlen:  {label:'유로연장',hint:'짧을수록(집중시간 빠름=대응시간 부족) 우선순위 ↑',modes:['drain']},
-  safety:   {label:'안전점검 등급',hint:'정밀안전점검·진단 종합평가 A~E, E(불량)에 가까울수록 우선순위 ↑ (양수장은 자료 없음 · 배수장은 5개 지구만 확보되어 미반영)',modes:['res_isu','res_chisu','pump','drain']},
+  safety:   {label:'안전등급',hint:'정밀안전점검·진단 종합평가 A~E, E(불량)에 가까울수록 우선순위 ↑ (양수장은 자료 없음 · 배수장은 5개 지구만 확보되어 미반영)',modes:['res_isu','res_chisu','pump','drain']},
   unitsto:  {label:'관개면적당 유효저수량',hint:'단위저수량(mm), 작을수록(가뭄 대응 여유 부족) 우선순위 ↑',modes:['res_isu']},
   prerel:   {label:'사전방류수문 설치 여부',hint:'없으면 우선순위 ↑ (대상 85개소 중 7개소 설치)',modes:['res_chisu']},
   drcap:    {label:'홍수배제시설 규모',hint:'기존 배수장 용량 ÷ 미래 홍수량(30년빈도·24시간). 1 이상이면 충분, 작을수록 우선순위 ↑ (기존 배수장이 없는 23개 지구는 배제능력 0으로 최우선)',modes:['drain']},
@@ -5750,7 +5750,7 @@ function gradeBuildCfg(){
       keys.map((k,i)=>{const d=GRADE_FACTOR_DEFS[k],c=cov[i],ok=c[0]>0;return `<tr style="${ok?'':'opacity:.55'}"><td class="txt"><b>${d.label}</b></td><td data-l="가중치">${fmt(w[k]/keys.reduce((a,kk)=>a+w[kk],0)*100,1)}%</td>`+
         `<td data-l="자료 확보">${c[0]}/${c[1]}${ok?'':' <span style="color:#C0392B">자료 없음 → 제외</span>'}</td><td data-l="산정 반영 비중">${ok&&tot?fmt(w[k]/tot*100,1)+'%':'–'}</td><td class="txt hint" style="white-space:normal;font-weight:400">${d.hint}</td></tr>`;}).join('')+'</tbody>';
     const wrap=el('div');wrap.style.overflow='auto';wrap.appendChild(t);host.appendChild(wrap);
-    host.appendChild(el('div','hint','※ 시설별로 값이 없는 인자는 그 시설의 산정에서 빼고 나머지 가중치를 다시 100%로 환산합니다. 안전점검 등급은 양수장은 자료가 없고 배수장은 5개 지구만 확보되어 산정에서 빠집니다. 모든 인자에 같은 가중치를 적용합니다(11/19 협의).'));
+    host.appendChild(el('div','hint','※ 시설별로 값이 없는 인자는 그 시설의 산정에서 빼고 나머지 가중치를 다시 100%로 환산합니다. 안전등급은 양수장은 자료가 없고 배수장은 5개 지구만 확보되어 산정에서 빠집니다. 모든 인자에 같은 가중치를 적용합니다(11/19 협의).'));
     return;
   }
   const applicable=Object.keys(GRADE_FACTOR_DEFS).filter(k=>GRADE_FACTOR_DEFS[k].modes.includes(mode));
