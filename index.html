@@ -233,7 +233,7 @@ body[data-page="ov"] .wrap{max-width:none;padding:0 0 90px}
 .hero .eyebrow::after{content:"";height:1px;width:56px;background:linear-gradient(90deg,var(--s245),transparent)}
 .hero h2{font-size:clamp(34px,5.2vw,58px);line-height:1.12;letter-spacing:-.042em;font-weight:700;
   color:#fff;margin-top:18px;max-width:860px}
-.hero h2 .dim{color:#93AECA;font-weight:700}
+.hero h2 .dim{color:#93AECA;font-weight:700}.hero h2 .nw{white-space:nowrap}
 .hero .lede{font-size:clamp(13.5px,1.4vw,15.5px);color:#A9BFD6;max-width:640px;margin-top:18px;line-height:1.75}
 .hero .lede b{color:#DCEBF7;font-weight:700}
 .hero .scnrow{display:flex;gap:10px;margin-top:26px;flex-wrap:wrap}
@@ -374,6 +374,7 @@ table.data th{background:var(--panel-2);position:sticky;top:0;z-index:2;font-wei
   font-size:var(--fs-xs);letter-spacing:.03em;cursor:pointer;user-select:none;border-bottom:1px solid var(--line)}
 table.data th:hover{color:var(--accent-deep)}
 table.data th.txt,table.data td.txt{text-align:left}
+#wt-table th:first-child,#wt-table td:first-child,#wp-table th:first-child,#wp-table td:first-child,#wv-table th:first-child,#wv-table td:first-child,table.data tr.grouprow td{text-align:left}
 table.data td{font-variant-numeric:tabular-nums}
 table.data td.txt{color:var(--ink);font-weight:400}
 table.data tbody tr{transition:background .1s}
@@ -443,7 +444,7 @@ table.data th .th-sc{display:block;font-size:var(--fs-2xs);font-weight:400;color
 .gm-cmp th,.gm-cmp td{border:1px solid var(--line);padding:6px 8px;text-align:center;vertical-align:middle;line-height:1.45}
 .gm-cmp th{color:#fff}.gm-cmp td:first-child{font-weight:700;background:var(--panel-2)}
 .gm-band{display:flex;flex-wrap:wrap;gap:6px;margin:8px 0}.gm-band span{border-radius:var(--r-md);padding:4px 9px;font-size:var(--fs-xs);font-weight:700;color:#fff}
-.gm-kv{display:grid;grid-template-columns:120px 1fr;gap:6px 12px;font-size:var(--fs-sm);line-height:1.5}.gm-kv b{color:var(--ink-soft)}
+.gm-kv{display:grid;grid-template-columns:120px minmax(0,1fr);gap:6px 12px;font-size:var(--fs-sm);line-height:1.5}.gm-kv b{color:var(--ink-soft)}
 .sectabs button{flex:none;border:0;background:transparent;color:var(--ink-soft);border-bottom:2.5px solid transparent;
   padding:9px 14px 11px;font-size:var(--fs-sm);font-weight:700;cursor:pointer;font-family:var(--sans);white-space:nowrap;transition:.15s}
 .sectabs button:hover{color:var(--ink)}
@@ -743,7 +744,7 @@ body[data-page="home"] .wrap{max-width:none;padding:0}
 .cmp-table{width:100%;border-collapse:collapse}
 .cmp-table th,.cmp-table td{padding:9px 12px;border-bottom:1px solid var(--line-soft);font-size:var(--fs-sm)}
 .cmp-table thead th{font-weight:700;color:var(--ink-soft);text-align:center}
-.cmp-table thead th:first-child{text-align:left}
+.cmp-table thead th:first-child,.cmp-table tbody td:first-child{text-align:left}
 .cmp-del{cursor:pointer;color:var(--muted);font-weight:400;margin-left:4px;font-size:var(--fs-2xs)}
 .cmp-del:hover{color:var(--inc)}
 .sc-radar-row{display:flex;gap:20px;align-items:stretch;flex-wrap:wrap}
@@ -974,6 +975,8 @@ body[data-page="home"] .wrap{max-width:none;padding:0}
     color:#fff;font-size:19px;font-weight:700;opacity:0}
   .si-dot{position:absolute;width:22px;height:22px;border-radius:50%;opacity:0;transform-origin:50% 50%}
   .si-stat .nt{font-size:19px;font-weight:700;margin-top:14px}
+  .gm-kv>span{min-width:0}
+  @media (max-width:760px){.gm-kv{grid-template-columns:minmax(0,1fr);gap:2px 0}.gm-kv>b{margin-top:8px}#ov-grade .ovg-cmp table.data{min-width:680px}}
   @media (max-width:760px){.sh-intro-wrap{border-radius:12px}
     .si-snd{right:9px;top:8px;height:24px;padding:0 9px}
     .si-snd span{display:none}}
@@ -2175,7 +2178,7 @@ function introRenderTab(t){
         <li>GCM 영향도 분석 — 18개 기후모델이 앙상블 평균에 미치는 영향을 순위·방사형 차트로 검토</li>
         <li>시군구 단위 기후변화 취약성평가 검토 (167개 시군구 · 5개 지표)</li>
         <li>시설 제원 조회 — 저수지·양수장 지구·배수장 지구의 준공연도·유역면적·수혜면적 등 제원 통합 조회, <b>참고용 위치 지도</b>도 함께 제공</li>
-        <li>시설관리 기능평가 등급 산정 — <b>① 1차원적 접근(증감률 기준)·② 다차원적 접근(산정인자·가중치 기준)·③ 기후성능목표형(달성률 기준)</b> 세 방식으로 시설별 A(우수)~E(불량) 기능평가 등급 산정·비교, 가중치 조합 비교와 <b>개선효과 시뮬레이션</b> 포함</li>
+        <li>시설관리 기능평가 등급 산정 — <b>① 1차원적 접근(증감률 기준)·② 다차원적 접근(산정인자·가중치 기준)·③ 기후성능목표형(달성률 기준)</b> 세 방식으로 시설별 A(우수)~E(불량) 기능평가 등급 산정·비교, 가중치 조합 비교와 <b>③ 목표 달성 소요량</b> 포함</li>
       </ul>
       <div class="modal-stats">
         <div><b>76</b><span>관측소</span></div>
@@ -2204,7 +2207,7 @@ function introRenderTab(t){
       </ul>
       <h3>시설관리 기능평가 등급 산정</h3>
       <ul>
-        <li>상단 카드에서 <b>산정 방식</b>(① 1차원적 접근(증감률 기준) / ② 다차원적 접근(산정인자·가중치 기준) / ③ 기후성능목표형(달성률 기준))을 고를 수 있으며, '요약' 구간에서 세 방식의 등급 분포를 나란히 비교합니다. ① 증감률 기준은 카드 아래에서 구간 설정(①-1안 고정간격 · ①-2안 분위수 · ①-3안 Jenks)을 바꿔 볼 수 있습니다. 등급 구간 값은 예시이며 설문·자문을 거쳐 확정합니다.</li>
+        <li>상단 카드에서 <b>산정 방식</b>(① 1차원적 접근(증감률 기준) / ② 다차원적 접근(산정인자·가중치 기준) / ③ 기후성능목표형(달성률 기준))을 고를 수 있으며, '요약' 구간에서 세 방식의 등급 분포를 나란히 비교합니다. ① 증감률 기준은 카드 아래에서 구간 설정(①-1안 고정간격 · ①-2안 분위수 · ①-3안 Jenks)을 바꿔 볼 수 있습니다. ①·②의 등급 구간 값은 예시이며, ③은 정밀안전진단 등급 구간(지수 × 20)을 따릅니다.</li>
         <li>저수지는 이수·치수 부문을 나누어 산정하며, 양수장·배수장 지구는 자료가 없는 인자를 '자료 없음'으로 표시하고 산정에서 뺍니다.</li>
         <li>② 다차원적 접근은 기본으로 <b>1차 설문 선정 인자·동일 가중치</b>(저수지·이수 6, 저수지·치수 4, 양수장 4, 배수장 4개 인자)를 적용합니다(11/19 회의: 2차 AHP 설문 생략, 동일 가중치 적용). 자료가 없는 인자는 자동으로 제외되고 나머지 가중치가 재환산됩니다. '직접 설정'으로 바꾸면 기존처럼 인자와 비율을 자유롭게 조정할 수 있습니다.</li>
         <li>'직접 설정' 모드에서는 각 인자에 원하는 비율(숫자)을 자유롭게 입력하면 됩니다 — 합계가 100이 아니어도 되며, 입력한 비율대로 자동으로 100% 가중치로 환산되어 A(우수)~E(불량) 등급이 즉시 재계산됩니다.</li>
@@ -2779,7 +2782,7 @@ function renderOverview(){
     <div class="rain"></div><div class="rain2"></div>
     <div class="in">
       <div class="eyebrow">농업 SOC 미래 가뭄·홍수 기후안전도 · 결과 대시보드</div>
-      <h2>과거 30년의 관측이 기준이 되고,<br><span class="dim">미래 40년의 시나리오가 답합니다.</span></h2>
+      <h2>과거 30년의 관측이 <span class="nw">기준이 되고,</span><br><span class="dim">미래 40년의 <span class="nw">시나리오가 답합니다.</span></span></h2>
       <p class="lede">과거 관측 <b>1991–2020년</b>을 기준으로, 미래 시나리오(SSP2-4.5·SSP5-8.5)의
         <b>2031–2070년</b>을 비교합니다. 두 시나리오에서
         확률강우량과 이수·치수 시설 수문량이 어떻게 변하는지 — 통계량·증감량·증감률로 정리했습니다.
@@ -2893,7 +2896,7 @@ function renderGradeOverview(){
     <tr><td><b>등급 체계</b></td><td>A~E 5등급</td><td>A~E 5등급 (동일 체계 적용)</td></tr></tbody></table>
     <div class="hint" style="margin-top:6px">안전등급이 양호해도 기후요인에 의한 기능 저하는 가능하므로, 같은 A~E 체계로 기능평가 등급을 병행하여 시설관리에 반영합니다.</div>`;
   const methT=`<table class="data"><thead><tr><th ${th}>구분</th>${GRADE_METHOD_ORDER.map(k=>`<th style="background:${GRADE_METHODS[k].c};color:#fff">${GRADE_METHODS[k].no} ${GRADE_METHODS[k].t}<br><span style="font-weight:400">(${GRADE_METHODS[k].s})</span></th>`).join('')}</tr></thead><tbody>${
-    [['핵심 질문','q'],['산정 방식','f'],['등급 구간(예시)','bands'],['장점','pro'],['단점','con']].map(([lb,f])=>
+    [['핵심 질문','q'],['산정 방식','f'],['등급 구간','bands'],['장점','pro'],['단점','con']].map(([lb,f])=>
       `<tr><td><b>${lb}</b></td>${GRADE_METHOD_ORDER.map(k=>{const v=(k==='rate'&&f==='bands')?GRADE_RATE_OV:GRADE_METHODS[k][f];return `<td>${Array.isArray(v)?v.map(b=>b[0]+'\u00a0'+b[1]).join(' · '):v}</td>`;}).join('')}</tr>`).join('')}</tbody></table>
     <div class="hint" style="margin-top:6px">11/19 협의에서 <b>③ 기후성능목표형을 최종안</b>으로 정했습니다. ③은 증감률로 판정한 상태 a~e(달성률 점수, 최대 80점)와 재량점수(최대 20점)를 합친 100점으로 평가하고, 등급 구간은 정밀안전진단 등급 구간(지수 × 20)을 따릅니다. ② 다차원적 접근은 1차 전문가 설문(인자 반영 여부)으로 정한 인자에 동일 가중치를 적용합니다(2차 AHP 설문 생략). ①·②의 등급 구간 값은 예시입니다.</div>`;
   p.innerHTML=`<div class="panel-h"><h3>시설관리 기능평가 등급 체계</h3><div class="hint">이미 설치된 농업 SOC가 미래 기후조건에서 기능을 얼마나 유지하는지 A(우수)~E(불량) 5등급으로 평가 · ※ 취약성 등급은 1(취약)~3(양호)로 방향이 반대</div></div>
@@ -2902,7 +2905,7 @@ function renderGradeOverview(){
         <div><div class="subttl">가. 기능평가 등급 정의</div>${defT}</div>
         <div><div class="subttl">나. 시설물 안전등급과 기능평가 등급 비교</div>${cmpT}</div>
       </div>
-      <div class="subttl" style="margin-top:18px">다. 등급 산정 방식 (기준안 비교)</div><div style="overflow:auto">${methT}</div>
+      <div class="subttl" style="margin-top:18px">다. 등급 산정 방식 (기준안 비교)</div><div class="ovg-cmp" style="overflow:auto">${methT}</div>
     </div>`;
   $('#ovbody').appendChild(p);
 }
@@ -3429,7 +3432,7 @@ const WP={st:0,ind:'ann',y0:2031,y1:2070,oy0:1991,oy1:2020};
 const PC_GROUPS=[
   {g:'평균강수량 (mm)',u:'mm',d:0,items:[['ann','연강수'],['spr','봄(3-5)'],['sum','여름(6-8)'],['aut','가을(9-11)'],['win','겨울(12-2)'],['grow','생육기(5-9)'],['nonirr','비관개기(10-4)']]},
   {g:'최대강우량 (mm)',u:'mm',d:0,items:[['mx1','일 최대'],['mx5','5일 최대']]},
-  {g:'강수일수 (일)',u:'일',d:1,items:[['pdays','강수일수(≥0.1mm)'],['pdays_eff','유효강수일수(≥5mm)'],['pdays80','호우일수(≥80mm)']]},
+  {g:'강수일수 (일)',u:'일',d:1,items:[['pdays','강수일수(0.1mm 이상)'],['pdays_eff','유효강수일수(5mm 이상)'],['pdays80','호우일수(80mm 이상)']]},
   {g:'무강우',u:'',d:1,items:[['drymax','최대 연속 무강우(일)'],['dry10','10일 이상 무강우(회)'],['drygrow','생육기 최대 연속 무강우(일)']]},
   {g:'기타',u:'',d:1,items:[['sdii','강수강도(mm/day)'],['conc1','1일 집중비율(%)'],['heavyfreq','집중호우빈도(%)']]},
 ];
@@ -3606,10 +3609,10 @@ function renderRepro(){
   v.innerHTML+='<div class="rp-cards">'
    +'<div class="rp-card"><div class="k">① 연최대치 (MAM)</div><div class="t">평균 연최대치 재현</div><div class="v">Fragments 상대편의 <b>'+rpf(S.MOF.pbias,1)+'%</b>, NSE <b>'+rpf(S.MOF.nse)+'</b><br>커버리지 <b>'+rpf(X.mam_cover.MOF,1)+'%</b> (COPULA '+rpf(X.mam_cover.COPULA,1)+'%)</div></div>'
    +'<div class="rp-card"><div class="k">② 극치 호우사상</div><div class="t">일강우 80mm 이상 '+X.ev['80'].n+'개 사상</div><div class="v">Fragments 최대 1h <b>+'+rpf(e80.max1h.b,0)+'%</b> · 3h <b>+'+rpf(e80.max3h.b,0)+'%</b> · 6h <b>+'+rpf(e80.max6h.b,0)+'%</b><br>(비교: COPULA 1h +'+rpf(X.ev['80'].m.COPULA.max1h.b,0)+'% · CASCADE 1h +'+rpf(X.ev['80'].m.CASCADE.max1h.b,0)+'%)</div></div>'
-   +'<div class="rp-card"><div class="k">③ 재현빈도별 분위</div><div class="t">Gumbel 10~200년 확률강우량</div><div class="v">Fragments 100년: 1h <b>+'+rpf(at(q200,60),0)+'%</b>, 3h <b>+'+rpf(at(q200,180),0)+'%</b>, 6h <b>+'+rpf(at(q200,360),0)+'%</b><br>24·48h <b>±2% 이내</b>, 재현빈도과 무관하게 일정</div></div>'
+   +'<div class="rp-card"><div class="k">③ 재현빈도별 분위</div><div class="t">Gumbel 10~200년 확률강우량</div><div class="v">Fragments 100년: 1h <b>+'+rpf(at(q200,60),0)+'%</b>, 3h <b>+'+rpf(at(q200,180),0)+'%</b>, 6h <b>+'+rpf(at(q200,360),0)+'%</b><br>24·48h <b>±2% 이내</b>, 재현빈도와 무관하게 일정</div></div>'
    +'</div>';
   v.innerHTML+='<div class="rp-concl">★ 핵심 결론 &mdash; 세 단계를 종합하면 <b style="color:'+METH_COL.MOF+'">Fragments</b>의 관측 재현성이 가장 우수합니다(1시간 극치는 COPULA가 더 근접). '
-    +'배수장 설계에 쓰는 24·48시간은 관측과 ±2% 이내로 거의 같고, 6~18시간은 약 −7~+6% 범위입니다. <b>1~4시간 단시간 극치는 약 10~23% 크게 재현</b>되며, 그 크기가 재현빈도과 관계없이 일정해 지속시간별 보정을 검토할 수 있습니다.</div>';
+    +'배수장 설계에 쓰는 24·48시간은 관측과 ±2% 이내로 거의 같고, 6~18시간은 약 −7~+6% 범위입니다. <b>1~4시간 단시간 극치는 약 10~23% 크게 재현</b>되며, 그 크기가 재현빈도와 관계없이 일정해 지속시간별 보정을 검토할 수 있습니다.</div>';
   v.innerHTML+='<div class="rp-def"><b>앙상블 커버리지란?</b> 같은 일강우를 30회 상세화한 결과의 5–95% 범위 안에 관측값이 들어오는 비율입니다(90%에 가까울수록 우수). '
     +'본 탭은 <b>① 연최대치</b>(관측소·지속시간별 평균 연최대치), <b>② 호우사상</b>(사상별 최대 1·3·6시간 강우), <b>③ 분위</b>(관측소·지속시간·재현빈도별 확률강우량)의 세 단위로 산정하였습니다. '
     +'일강우 총량을 고정하고 시간 분배의 무작위성만 반영하므로 범위가 좁게 산정되며, 편의(%)와 함께 해석해야 합니다.</div>';
@@ -3710,7 +3713,7 @@ function reproDetail(){
   var mo=d.methods,durs=d.durs;
   var nm=(d.stations.find(function(s){return s.id===st;})||{}).name||st;
   host.innerHTML+='<div class="subttl">'+nm+' &middot; ① 지속시간별 연최대치 상대편의 <span style="font-weight:400;color:#888">(관측 대비 %, 0에 가까울수록 우수)</span></div>'+reproLegend()+'<div id="rp-idf" class="rp-chart"></div>';
-  host.innerHTML+='<div class="subttl" style="margin-top:16px">'+nm+' &middot; ③ '+RS.T+'년 빈도 확률강우량 상대편의 <span style="font-weight:400;color:#888">(재현빈도은 ③의 선택을 따름)</span></div>'+reproLegend()+'<div id="rp-qst" class="rp-chart"></div>';
+  host.innerHTML+='<div class="subttl" style="margin-top:16px">'+nm+' &middot; ③ '+RS.T+'년 빈도 확률강우량 상대편의 <span style="font-weight:400;color:#888">(재현빈도는 ③의 선택을 따름)</span></div>'+reproLegend()+'<div id="rp-qst" class="rp-chart"></div>';
   var es=X.evst[st];
   if(es){var t2='<div class="subttl" style="margin-top:16px">'+nm+' &middot; ② 극치 호우사상(80 mm 이상) 상대편의</div><div class="rp-scroll"><table class="rp-tbl"><thead><tr><th>지표</th>';
     mo.forEach(function(m){t2+='<th>'+MN(m)+'</th>';});t2+='</tr></thead><tbody>';
@@ -4627,8 +4630,8 @@ function c6draw(){
 
   const p1=el('div','panel');
   p1.innerHTML=`<div class="panel-h"><h3>GCM별 MME 이탈도 순위</h3><div class="hint">${MN(C6.method)} · ${C6.tt} · ${C6.scn} · ${aggLabel}</div></div>
-    <div class="panel-b"><div class="legend"><span><i style="background:${COL['SSP5-8.5']}"></i>MME보다 큼(+)</span>
-    <span><i style="background:${COL['SSP2-4.5']}"></i>MME보다 작음(−)</span></div>
+    <div class="panel-b"><div class="legend"><span><i style="background:${INC}"></i>MME보다 큼(+)</span>
+    <span><i style="background:${DEC}"></i>MME보다 작음(−)</span></div>
     <div id="c6-rank" style="margin-top:8px"></div></div>`;
   body.appendChild(p1);
   divergeChart($('#c6-rank'),rows.map(r=>({label:r.gcm,val:r.dev,extra:`<div class="r"><span>영향도(절대)</span><b>${fmt(r.adev,2)}%</b></div>`})),
@@ -5109,8 +5112,8 @@ function summaryRender(){
       <h4>핵심 지표 증감률 (과거 대비 · ${sidoFilter!=='전체'?sidoFilter:'전국'} 평균 · ${allFacilities.find(f=>f.mode===SUMMARY_STATE.facility)?.label||'전체 시설'})</h4>
       <div class="sum-metrics">
         ${sum.map(s=>`<div class="sum-metric"><span>${s.label}</span>
-          <div class="sum-dual"><b class="${s.v245>=0?'up':'down'}">${fmtSign(s.v245,1)}%<small>245</small></b>
-          <b class="${s.v585>=0?'up':'down'}">${fmtSign(s.v585,1)}%<small>585</small></b></div></div>`).join('')}
+          <div class="sum-dual"><b class="${s.v245>=0?'up':'down'}">${fmtSign(s.v245,1)}%<small>SSP2-4.5</small></b>
+          <b class="${s.v585>=0?'up':'down'}">${fmtSign(s.v585,1)}%<small>SSP5-8.5</small></b></div></div>`).join('')}
       </div>
     </div>
     <div class="sum-sec">
@@ -5355,15 +5358,15 @@ const GRADE_METHODS={
   rate:{no:'①',t:'1차원적 접근',s:'증감률 기준',c:'#4A6FA5',q:'미래 수문량이 얼마나 늘어나는가?',
     f:'증감률 = (미래 − 과거) ÷ 과거 × 100',neg:'A로 일괄 처리 (감소 폭 정보 소실)',
     pro:'단순·투명, 설명이 쉬움 · 현재 자료로 바로 적용',con:'증감률만 반영(취약성·시설 여건·안전등급 미반영) · 구간 경계값에 따라 등급 분포가 크게 달라짐 · 감소(−)는 폭과 관계없이 모두 A로 처리(감소 정보 소실)',
-    bands:[['A','≤0%'],['B','0~5%'],['C','5~10%'],['D','10~20%'],['E','≥20%']]},
+    bands:[['A','0% 이하'],['B','0~5%'],['C','5~10%'],['D','10~20%'],['E','20% 이상']]},
   multi:{no:'②',t:'다차원적 접근',s:'산정인자·가중치 기준',c:'#C27A2C',q:'영향·취약성·시설 특성을 종합하면 관리가 얼마나 시급한가?',
     f:'Σ(인자 점수 × 동일 가중치) — 취약성·증감률·저수량·수혜면적·안전등급 등',neg:'0~100점 환산 시 상대 위치로 반영 (감소분 점수화 기준 필요)',
     pro:'1차 설문(CVR)으로 인자 선정 · 다인자 종합 · 우선순위 결정',con:'2차 AHP 생략으로 동일 가중치(인자 중요도 미반영) · 0~100 정규화 상대평가라 절대 목표 설정 곤란 · 점수가 높을수록 시급(진단 등급과 방향 반대)',
-    bands:[['A','<20점'],['B','20~40점'],['C','40~60점'],['D','60~80점'],['E','≥80점']]},
+    bands:[['A','20점 미만'],['B','20~40점'],['C','40~60점'],['D','60~80점'],['E','80점 이상']]},
   target:{no:'③',t:'기후성능목표형',s:'달성률 기준 · 최종안',c:'#1F8A84',q:'미래 기후성능목표 달성 상태(a~e)와 시설 여건(재량)을 합쳐 100점 중 몇 점인가?',
     f:'총점 = 달성률 점수(상태 a~e 5~1점 × 16, 최대 80점) + 재량점수(최대 20점) · 상태: 증감률 0% 이하 a · ~10% b · ~20% c · ~30% d · 30% 초과 e',neg:'증감률 0% 이하는 상태 a(80점, 미래 목표 100% 달성)',
     pro:'정책 목표 관리(목표 등급·필요 보강량 설정) · 정밀안전진단 등급 구간(지수 × 20)·상태평가(a~e)와 연계해 진단 담당자 수용 용이 · 현장 판단(취약성·시설 특성·안전등급) 반영 · 재량점수(20점)로 유연성 확보 · 증감률이 큰 시설을 D·E로 구분',con:'상태 구간 경계(10%p 간격)와 재량 점수표·비중은 잠정 · 경계 부근에서 점수가 계단식으로 바뀜 · 증감률 기준이라 시설별 현재 여유분은 반영하지 못함',
-    bands:[['A','≥90점'],['B','70~90점'],['C','50~70점'],['D','30~50점'],['E','<30점']]},
+    bands:[['A','90점 이상'],['B','70~90점'],['C','50~70점'],['D','30~50점'],['E','30점 미만']]},
 };
 const GRADE_METHOD_ORDER=['rate','multi','target'];
 // ① 증감률 기준 구간 설정안 (경계값: 시설별_증감량_증감률_등급안_histogram.xlsx, 빈도·조건별 증감률을 두 시나리오 통합해 산정)
@@ -5374,7 +5377,7 @@ const GRADE_RATE_BANDSETS={
   r3:{no:'①-3안',t:'Jenks',d:'A = ①-2안과 같은 상한, B~E = 나머지 자료를 Jenks 방법(자료가 자연스럽게 끊기는 지점)으로 4분할'},
 };
 const GRADE_RATE_ORDER=['r1','r2','r3'];
-const GRADE_RATE_OLD='A ≤0% · B 0~5% · C 5~10% · D 10~20% · E ≥20%';
+const GRADE_RATE_OLD='A 0% 이하 · B 0~5% · C 5~10% · D 10~20% · E 20% 이상';
 const GRADE_RATE_EXACT={"res_isu": {"4215010002": [16.820307887925168, 18.813859497752155], "4278010021": [-3.093566768519286, -6.535634651911798], "4215010006": [16.750147318797886, 17.26576311137302], "4223010001": [10.015772870662463, 1.8927444794952615], "4273010017": [-1.0040160642570282, 1.1044176706827395], "4213010029": [-6.05966438781852, -1.4294592914854016], "4211010006": [5.177664974619284, 12.5888324873097], "4272010045": [-0.8903278025091009, 6.00971266693646], "4272010044": [-3.895038950389504, 2.4600246002460024], "4280010012": [16.07756008887094, 15.269642496465362], "4276010003": [-2.3263092009180126, 1.5647819737116628], "4272010004": [4.382244840260108, 3.1099802092168503], "4180010001": [3.197418597829286, 3.8427691405104207], "4153010011": [12.26860254083485, 12.631578947368425], "4181010023": [0.29985007496251875, 4.167916041979003], "4179010005": [12.047803617571045, 10.885012919896637], "4888010187": [-4.435101745438249, 3.8130847562761723], "4885010022": [-5.878075384801842, -5.223609259483702], "4824010001": [-2.8401154669894773, 8.501722692988169], "4827010212": [13.17180616740087, 21.101321585903072], "4822010017": [-4.809013465237703, 0.6732618851332909], "4817010100": [-11.224925309432356, -4.524114383269322], "4831010103": [8.346581875993643, 13.19554848966614], "4833010006": [-0.44427274483292795, 8.634344214796199], "4886010029": [17.445185891325067, 15.824594852240223], "4887010056": [6.765140324963066, 9.30576070901034], "4827010043": [18.118022328548648, 25.64593301435406], "4719010009": [2.401950612160209, 4.923220585183653], "4728010034": [-2.2735518200507867, -1.6507437416858117], "4719010011": [17.74094536525476, 16.697360343769176], "4723010145": [8.34368727898308, 14.54649718054096], "4719010060": [13.875262789067982, 13.735108619481446], "4792010068": [10.792012564505278, 13.686336100516042], "4715010177": [10.839160839160837, 13.81118881118882], "4775010112": [-3.427863436123345, 1.1563876651982348], "4785010003": [1.5439622948155372, 5.7532910775231745], "4783010020": [-26.835466867469894, -23.108057228915673], "4790010128": [9.728752260397822, 13.779385171790242], "4772010346": [7.13688610240334, 13.124346917450355], "4713010465": [8.527789563003827, 19.49512091641917], "4613010040": [1.7719793593613131, 9.570635770616317], "4681010057": [3.728744109813572, 4.650686334767475], "4691010214": [-11.311751497005988, -11.059131736526941], "4681010131": [11.648129423660269, 10.25278058645097], "4690010025": [1.8447893569844749, 5.65853658536585], "4684010002": [9.30232558139535, 13.178294573643413], "4684010046": [6.334841628959278, 9.954751131221727], "4672010127": [16.131868131868128, 11.648351648351648], "4673010024": [6.072477962781594, 6.301012079660461], "4677010043": [1.3081055828077472, 5.559448726932949], "4615010026": [-3.446925186055625, 1.2142577359968532], "4681010059": [8.74915483434754, 10.574712643678168], "4521010090": [-0.016276041666676535, 2.1954571759259194], "4572010141": [2.323137987392012, -2.0196124212001014], "4572010128": [-5.218914185639221, -5.534150612959723], "4577010180": [-4.257347100873702, -2.0333598093725107], "4577010052": [10.766246362754615, -0.09699321047526123], "4575010158": [-9.538344143456706, -8.69896985883251], "4519010054": [7.035860190649114, 8.352246935996357], "4519010049": [9.523809523809524, 10.000000000000004], "4579010049": [-2.183406113537118, -3.5480349344978164], "4577010109": [-7.601405301820508, -6.068348770360907], "4571010135": [-7.552870090634441, -8.620342396777444], "4574010013": [-27.80172413793103, -24.676724137931032], "4519010047": [3.720083246618109, 3.485952133194598], "4572010040": [1.7916666666666712, 2.4583333333333357], "4479010015": [-3.7816507727721147, -2.6307135810588624], "4477010004": [3.4350132625994614, 0.6454465075154691], "4480010042": [9.288888888888891, 6.599999999999998], "4482010016": [12.036926028054188, 8.356312192782632], "4479010002": [-1.4209422086591517, 3.719244707228686], "4481010023": [7.313997477931901, 6.179066834804548], "4418010005": [-10.346926354230067, -8.886183810103482], "4483010048": [9.082282770774027, 6.222041480276531], "4479010087": [-22.300819061801935, -24.37825763216679], "4423010087": [7.621009268795059, 5.847350955486901], "4313010068": [7.110746256987611, 7.708846409444521], "4373010044": [9.322779243623577, 12.765422791808021], "4315010013": [14.791224345364457, 12.137296532200974], "4311010006": [8.079268292682945, 10.060975609756111], "4374010036": [6.510851419031716, 11.473668234937021], "4374010035": [4.297182433495998, 2.8175665040138664], "4372010012": [10.83801498127341, 11.16573033707865], "4372010008": [16.433189655172413, 14.412715517241379], "4375010008": [0.3033367037411498, 1.8958543983822043]}, "pump": {"가현-월곶": [0.31438302331673795, -0.3274823159549385], "덕천-덕우": [0.19772865544513607, -0.5019265868992138], "덕천-기천": [0.19443613520790165, -0.5035397347691648], "덕천-대성": [0.19772865544513607, -0.5019265868992138], "괸돌-괸돌": [-1.483097055616146, -1.5630679752817158], "백곡문백-전체구역": [-0.4360238774980582, -0.1661043342849751], "문당-문당": [-2.891614990563485, -2.413049339444591], "소이-분무실": [-0.8057697090276074, -0.427754289977613], "소이-큰골": [-1.2085586644721287, -1.2790971079238098], "소이-충도": [-0.4588928605931794, -0.23669210704278026], "청남-청남": [-0.4360238774980582, -0.1661043342849751], "현암-현암": [-1.4833127317676145, -1.572311495673669], "애당-애당": [-1.8294360385144366, -1.76753782668501], "동계-동계": [-0.9196563921172333, -0.9196563921172333], "원승-원승": [-1.7476788640087295, -1.8469787994637714], "금천-금천": [0.6176589712434207, 0.764479546375046], "담양순창-담양순창": [0.4988038886343948, 0.47844454624114946], "금자-금자": [1.515873772523583, 1.4205357994088914], "영화-영화": [-0.3743626153746824, 0.40018072677983896], "풍양-풍양": [-2.021107128634006, -1.6527279968140205], "주남-주남": [0.594059405940594, 0.9207920792079163]}};
 function gradeRateExact(mode,raw,scn){
   const t=GRADE_RATE_EXACT[mode];if(!t)return null;
@@ -5386,7 +5389,7 @@ function gradeRateBand(r,mode,set){const q=x=>Math.round(x*1e9)/1e9,t=gradeRateT
 function gradeRateBands(mode,set){
   const t=gradeRateTh(mode,set),d=mode==='pump'?2:1;
   const f=x=>Number.isInteger(x)?String(x):x.toFixed(d);
-  return [['A','≤'+f(t[0])+'%'],['B',f(t[0])+'~'+f(t[1])+'%'],['C',f(t[1])+'~'+f(t[2])+'%'],['D',f(t[2])+'~'+f(t[3])+'%'],['E','>'+f(t[3])+'%']];
+  return [['A',f(t[0])+'% 이하'],['B',f(t[0])+'~'+f(t[1])+'%'],['C',f(t[1])+'~'+f(t[2])+'%'],['D',f(t[2])+'~'+f(t[3])+'%'],['E',f(t[3])+'% 초과']];
 }
 function gradeBandsOf(M,mode){return M==='rate'?gradeRateBands(mode):GRADE_METHODS[M].bands;}
 function gradeRateSetLabel(set){const b=GRADE_RATE_BANDSETS[set||GRADE.rateBand];return b.no+' '+b.t;}
@@ -5594,13 +5597,13 @@ function gradeUpdateGcmNote(){
   const lvl=gcmSpreadLevel(gcmSpread);
   host.innerHTML=`<div class="c6-summary-dot" style="background:${lvl.c}"></div>
     <div>치수(설계홍수량·배수장 홍수량) 등급의 기반인 확률강우량은 18개 기후모델(GCM) 평균(MME)입니다. ${GRADE.scn} 시나리오에서 모델 간 최대 격차는
-    <b>${fmt(gcmSpread,1)}%p</b>로 모델 간 불확실성이 <b style="color:${lvl.c}">${lvl.t}</b> 편입니다(기준: 5%p 미만 낮음 · 5~15%p 보통 · 15%p 이상 높음).
+    <b>${fmt(gcmSpread,1)}%p</b>로 모델 간 불확실성이 <b style="color:${lvl.c}">${lvl.t}</b> 수준입니다(기준: 5%p 미만 낮음 · 5~15%p 보통 · 15%p 이상 높음).
     D·E등급(관리 시급)으로 나온 시설은 <b>GCM 영향도 분석</b> 탭에서 관측소별 모델 편차를 함께 확인하시기 바랍니다.</div>`;
 }
 function renderGrade(){
   const v=$('#view');
   v.innerHTML=printHead('시설관리 기능평가 등급 산정','① 1차원적 접근(증감률 기준) · ② 다차원적 접근(산정인자·가중치 기준) · ③ 기후성능목표형(달성률 기준) A~E 등급');
-  v.innerHTML+=`<div class="note no-print">ⓘ <span>등급 산정 기준안은 <b>① 1차원적 접근(증감률 기준)</b>, <b>② 다차원적 접근(산정인자·가중치 기준)</b>, <b>③ 기후성능목표형(달성률 기준)</b> 세 방식을 비교·검토 중입니다. 아래 카드에서 방식을 바꾸면 같은 시설의 결과를 바로 비교할 수 있습니다.
+  v.innerHTML+=`<div class="note no-print">ⓘ <span>등급 산정 기준안은 <b>① 1차원적 접근(증감률 기준)</b>, <b>② 다차원적 접근(산정인자·가중치 기준)</b>, <b>③ 기후성능목표형(달성률 기준)</b> 세 방식을 비교했으며, 11/19 협의에서 <b>③ 기후성능목표형을 최종안</b>으로 정했습니다. 아래 카드에서 방식을 바꾸면 같은 시설의 결과를 바로 비교할 수 있습니다.
     ② 다차원적 접근은 제안서의 등급 산정 방식(취약성평가 결과 + 이수·치수 인자)을 참고해, 인자별 값을 0~100점으로 환산한 뒤 가중치대로 합산하여 <b>A(우수)~E(불량)</b> 5단계로 나눕니다.
     저수지는 이수·치수를 따로 산정합니다. 양수장·배수장 지구는 소재 시군구 정보가 없어 <b>지구가 속한 시도의 평균</b> 취약성 등급을 쓰며, 경과연수·유역배율 등 자료가 없는 인자는 빼고 산정합니다.</span></div>`;
   const gcmSpread0=gcmOverallSpread(GRADE.scn);
@@ -6097,7 +6100,7 @@ function gradeDraw0(){
     {k:'score',label:RK.lb,d:1},{k:'grade',label:'등급',type:'gradeAE'},
     {k:'natPctl',label:'전국 상위(%)',d:1},{k:'sidoPctl',label:'시도 내 상위(%)',d:1}];
   if(M==='multi')active.forEach(key=>cols.push({k:'d_'+key,label:GRADE_FACTOR_DEFS[key].label,d:1}));
-  if(M==='target'){cols.push({k:'t_r',label:'증감률(%)',d:1},{k:'t_st',label:'상태',txt:true},{k:'t_perf',label:'달성률 점수',d:1},{k:'t_disc',label:'재량점수',d:1});GRADE_DISC_SET[mode].forEach(k=>cols.push({k:'t_'+k,label:gradeDiscLabel(mode,k)+'(점)',d:0}));}
+  if(M==='target'){cols.push({k:'t_r',label:'증감률(%)',d:1},{k:'t_st',label:'상태',txt:true},{k:'t_perf',label:'달성률 점수',d:1},{k:'t_disc',label:'재량점수',d:1});GRADE_DISC_SET[mode].forEach(k=>cols.push({k:'t_'+k,label:gradeDiscLabel(mode,k).replace(/ \((.+)\)$/,'·$1')+'(점)',d:0}));}
   const tblRows=results.map(r=>{const o={name:r.name,sido:r.sido,sigun:r.sigun,score:r.score,grade:r.grade,
     natPctl:r.score!=null?+natPctl[r.name].toFixed(1):null,sidoPctl:r.score!=null?+sidoPctl[r.name].toFixed(1):null};
     if(M==='multi')active.forEach(key=>o['d_'+key]=r.detail[key]!=null?+r.detail[key].toFixed(1):null);
@@ -6220,18 +6223,20 @@ buildNav();route();initScroll();initThemeToggle();initLinkCopy();initChartZoom()
     const day = todayKST();
     const fmt = n => (n||0).toLocaleString('ko-KR');
     const put = (id,v)=>{ const e=document.getElementById(id); if(e) e.textContent=v; };
-    const show = ()=>{ const w=document.getElementById('gc-visits'); if(w) w.hidden=false; };
+    let gcFail=false;
+    const show = ()=>{ const w=document.getElementById('gc-visits'); if(w && !gcFail) w.hidden=false; };
+    const hide = ()=>{ gcFail=true; const w=document.getElementById('gc-visits'); if(w) w.hidden=true; };
     // 세션당 1회만 카운트 (새로고침으로 중복 증가 방지)
     try {
       if(!sessionStorage.getItem('cd-visit')){
         sessionStorage.setItem('cd-visit','1');
-        runTransaction(ref(db,'counter/total'), v => (v||0)+1);
-        runTransaction(ref(db,'counter/daily/'+day), v => (v||0)+1);
+        runTransaction(ref(db,'counter/total'), v => (v||0)+1).catch(hide);
+        runTransaction(ref(db,'counter/daily/'+day), v => (v||0)+1).catch(hide);
       }
     } catch(e){}
     // 실시간 리스너 — 값이 바뀌면 즉시 위젯 갱신
-    onValue(ref(db,'counter/total'), s => { put('gc-total', fmt(s.val())); show(); });
-    onValue(ref(db,'counter/daily/'+day), s => { put('gc-today', fmt(s.val())); });
+    onValue(ref(db,'counter/total'), s => { put('gc-total', fmt(s.val())); show(); }, hide);
+    onValue(ref(db,'counter/daily/'+day), s => { put('gc-today', fmt(s.val())); }, hide);
   } catch(e){ /* 오프라인 등: 위젯 숨김 유지 */ }
 </script>
 <!-- 방문자 위젯은 '검색' 탭에서만 노출 -->
