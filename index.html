@@ -3334,7 +3334,7 @@ function wdDraw(){
     cp.innerHTML='<div class="panel-h"><h3>'+vm.t+' 일별 &mdash; '+stn.name+' ('+scnNm+', '+y0+(y1!=y0?'~'+y1:'')+')</h3><div class="hint">일 단위 원자료 · 단위 '+vm.u+' · '+pts.length+'일</div></div><div class="panel-b" id="wd-chart"></div>';
     body.appendChild(cp);
     const labels=pts.map(p=>{const mo=Math.floor(p.d/100)%100,day=p.d%100;return day===1?(mo===1?String(Math.floor(p.d/10000)):mo+'월'):'';});
-    lineChart($('#wd-chart'),[{name:vm.t,color:col,width:1.2,pts:pts}],{labels:labels,unit:vm.u,w:1040,h:300});
+    lineChart($('#wd-chart'),[{name:vm.t,color:col,width:1.2,pts:pts}],{labels:labels,unit:vm.u,w:1040,h:300,zero:WD.vr!=='tavg'});
     if(typeof autoZoomChart==='function')autoZoomChart($('#wd-chart'));
     const tp=el('div','panel');
     const det=el('details','yr-raw');det.innerHTML='<summary>일별 값 표 펼치기 ('+rows.length+'일) · CSV 내보내기</summary>';
