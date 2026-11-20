@@ -1041,7 +1041,7 @@ body{word-break:keep-all;overflow-wrap:break-word}
 }
 :root[data-theme="dark"]{--seg-bg:#0A1320}
 :root[data-theme="dark"] .sh-mark{background:rgba(55,180,222,.22);color:#BFE9F7}
-:root[data-theme="dark"] .btn.primary{color:#0A1220}
+:root[data-theme="dark"] .btn.primary,:root[data-theme="dark"] .gate-hint .gh-btn,:root[data-theme="dark"] .gate-hint .gh-btn:hover{color:#0A1220}
 /* 차트 SVG에 고정된 밝은 테마 색을 다크 모드에서 보이게 보정 */
 :root[data-theme="dark"] .chart [stroke="#0F1B29"],:root[data-theme="dark"] .chart [stroke="#12202E"]{stroke:var(--ink)}
 :root[data-theme="dark"] .chart [fill="#12202E"]{fill:var(--ink)}
@@ -2062,16 +2062,16 @@ function buildSearchIndex(){
   });
   // 시설관리 기능평가 등급 산정 (08번 탭) — 부문별 진입점
   idx.push({type:'시설관리 기능평가 등급 산정',icon:'grade',name:'저수지 이수 등급산정',
-    sub:'취약성등급·증감률·관개면적당 유효저수량·유역배율·수혜면적·안전등급 조합 A~E',
+    sub:'③ 증감률 상태(a~e) + 재량점수(취약성등급·유역배율·수혜면적·안전등급) A~E · ①·② 비교',
     kw:'저수지 이수 등급산정 기능평가 등급 산정 시설관리 가뭄',go:()=>{GRADE.type='res';GRADE.resMode='isu';location.hash='#grade';}});
   idx.push({type:'시설관리 기능평가 등급 산정',icon:'grade',name:'저수지 치수 등급산정',
-    sub:'취약성등급·증감률·사전방류수문·안전등급 조합 A~E',
+    sub:'③ 증감률 상태(a~e) + 재량점수(취약성등급·사전방류수문·안전등급) A~E · ①·② 비교',
     kw:'저수지 치수 등급산정 기능평가 등급 산정 시설관리 홍수',go:()=>{GRADE.type='res';GRADE.resMode='chisu';location.hash='#grade';}});
   idx.push({type:'시설관리 기능평가 등급 산정',icon:'grade',name:'양수장 지구 등급산정',
-    sub:'시도 평균 취약성등급·증감률·수혜면적 조합 A~E (안전등급은 자료 확보 시 반영)',
+    sub:'③ 증감률 상태(a~e) + 재량점수(시도 평균 취약성등급·수혜면적) A~E (안전등급은 자료 확보 시 반영)',
     kw:'양수장 지구 등급산정 기능평가 등급 산정 시설관리',go:()=>{GRADE.type='pump';location.hash='#grade';}});
   idx.push({type:'시설관리 기능평가 등급 산정',icon:'grade',name:'배수장 지구 등급산정',
-    sub:'시도 평균 취약성등급·증감률·홍수배제시설 규모 조합 A~E (안전등급은 5개 지구만 확보되어 미반영)',
+    sub:'③ 증감률 상태(a~e) + 재량점수(시도 평균 취약성등급·홍수배제시설 규모) A~E (안전등급은 5개 지구만 확보되어 미반영)',
     kw:'배수장 지구 등급산정 기능평가 등급 산정 시설관리',go:()=>{GRADE.type='drain';location.hash='#grade';}});
   // 분석 메뉴 — 메뉴 이름·주요 용어로 찾기
   const MENU_KW={ov:'요약 종합 개요',cv:'취약성 등급 지도 시군구',weather:'기온 강수 증발 증발산 Penman 극한강수 Rx1day R95p',
@@ -2193,7 +2193,7 @@ function introRenderTab(t){
       </ul>
       <h3>시설관리 기능평가 등급 산정</h3>
       <ul>
-        <li>상단 카드에서 <b>산정 방식</b>(① 1차원적 접근(증감률 기준) / ② 다차원적 접근(산정인자·가중치 기준) / ③ 기후성능목표형(달성률 기준))을 고를 수 있으며, '요약' 구간에서 세 방식의 등급 분포를 나란히 비교합니다. ① 증감률 기준은 카드 아래에서 구간 설정(①-1안 고정간격 · ①-2안 분위수 · ①-3안 Jenks)을 바꿔 볼 수 있습니다. ①·②의 등급 구간 값은 예시이며, ③은 정밀안전진단 등급 구간(지수 × 20)을 따릅니다.</li>
+        <li>상단 카드에서 <b>산정 방식</b>(① 1차원적 접근(증감률 기준) / ② 다차원적 접근(산정인자·가중치 기준) / ③ 기후성능목표형(달성률 기준))을 고를 수 있으며(처음에는 최종안인 ③이 선택됨), '요약' 구간에서 세 방식의 등급 분포를 나란히 비교합니다. ① 증감률 기준은 카드 아래에서 구간 설정(①-1안 고정간격 · ①-2안 분위수 · ①-3안 Jenks)을 바꿔 볼 수 있습니다. ①·②의 등급 구간 값은 예시이며, ③은 정밀안전진단 등급 구간(지수 × 20)을 따릅니다.</li>
         <li>저수지는 이수·치수 부문을 나누어 산정하며, 양수장·배수장 지구는 자료가 없는 인자를 '자료 없음'으로 표시하고 산정에서 뺍니다.</li>
         <li>② 다차원적 접근은 기본으로 <b>1차 설문 선정 인자·동일 가중치</b>(저수지·이수 6, 저수지·치수 4, 양수장 4, 배수장 4개 인자)를 적용합니다(11/19 회의: 2차 AHP 설문 생략, 동일 가중치 적용). 자료가 없는 인자는 자동으로 제외되고 나머지 가중치가 재환산됩니다. '직접 설정'으로 바꾸면 기존처럼 인자와 비율을 자유롭게 조정할 수 있습니다.</li>
         <li>'직접 설정' 모드에서는 각 인자에 원하는 비율(숫자)을 자유롭게 입력하면 됩니다 — 합계가 100이 아니어도 되며, 입력한 비율대로 자동으로 100% 가중치로 환산되어 A(우수)~E(불량) 등급이 즉시 재계산됩니다.</li>
@@ -5115,7 +5115,7 @@ function summaryRender(){
         ${facilities.map(f=>`<div class="sum-fac">
           <div class="sum-fac-h">${f.label}
             <span>SSP2-4.5: D ${f.s245.gradeCounts.D}·E ${f.s245.gradeCounts.E} / SSP5-8.5: D ${f.s585.gradeCounts.D}·E ${f.s585.gradeCounts.E} (총 ${f.s585.total}개)</span></div>
-          <ol>${f.s585.sorted.map(r=>`<li><span class="grade" style="background:${GRADE_INFO[r.grade].c}22;color:${GRADE_INFO[r.grade].c}">${r.grade}</span>${r.name}<span class="sum-fac-sido">${r.sido||''}</span></li>`).join('')||'<li class="sum-none">데이터 없음</li>'}</ol>
+          <ol>${f.s585.sorted.map(r=>`<li><span class="grade" style="background:${GRADE_INFO[r.grade].c}22;color:${GRADE_INFO[r.grade].c}">${r.grade}</span>${r.name}<span class="sum-fac-sido">${r.sido&&!r.name.startsWith(r.sido)?r.sido:''}</span></li>`).join('')||'<li class="sum-none">데이터 없음</li>'}</ol>
         </div>`).join('')}
       </div>
     </div>
