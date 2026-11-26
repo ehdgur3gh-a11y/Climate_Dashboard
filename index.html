@@ -1109,6 +1109,58 @@ table.fp-tbl tbody td:first-child:hover{text-decoration-color:var(--accent-deep)
   :root,:root[data-theme="dark"]{--bg:#fff;--panel:#fff;--panel-2:#F4F7FA;--ink:#0F1B29;--ink-soft:#45586C;--muted:#5E7084;
     --line:#D5DDE5;--line-soft:#EDF2F6;--seg-bg:#EDF1F5;--accent-deep:#0C6584;color-scheme:light}
 }
+/* ===== 하단 탭 바 liquid glass (11/26) ===== */
+@media(max-width:760px){
+  .botnav{left:10px;right:10px;bottom:calc(8px + env(safe-area-inset-bottom,0px));padding-bottom:0;
+    border-radius:26px;overflow:hidden;isolation:isolate;
+    background:linear-gradient(180deg,rgba(255,255,255,.74),rgba(244,248,251,.58));
+    -webkit-backdrop-filter:blur(22px) saturate(185%);backdrop-filter:blur(22px) saturate(185%);
+    border:1px solid rgba(255,255,255,.75);
+    box-shadow:inset 0 1px 0 rgba(255,255,255,.95),inset 0 -1px 1px rgba(255,255,255,.35),
+      0 0 0 .5px rgba(15,27,41,.10),0 10px 30px rgba(15,27,41,.18),0 2px 8px rgba(15,27,41,.08)}
+  .botnav::before{content:"";position:absolute;inset:0;border-radius:inherit;pointer-events:none;z-index:-1;
+    background:radial-gradient(120% 70% at 18% 0%,rgba(255,255,255,.55),transparent 55%),
+      radial-gradient(90% 60% at 100% 100%,rgba(46,155,196,.10),transparent 60%)}
+  .botnav-sub{background:transparent;border-bottom:1px solid rgba(15,27,41,.08);padding:8px 10px}
+  .botnav-sub-btn{background:rgba(255,255,255,.5);border-color:rgba(15,27,41,.10);color:var(--ink-soft)}
+  .botnav-sub-btn.on{background:var(--s245);border-color:var(--s245);color:#04222e;
+    box-shadow:inset 0 1px 0 rgba(255,255,255,.35)}
+  .botnav-main{padding:5px}
+  .botnav-btn{color:#56697C;border-radius:20px;padding:7px 2px 8px;z-index:0;-webkit-tap-highlight-color:transparent}
+  .botnav-btn.on{color:#14739A}
+  .botnav-btn::before{top:1px;bottom:1px;left:2px;right:2px;height:auto;border-radius:20px;z-index:-1;
+    background:linear-gradient(180deg,rgba(46,155,196,.22),rgba(46,155,196,.11));
+    box-shadow:inset 0 1px 0 rgba(255,255,255,.75),inset 0 0 0 1px rgba(46,155,196,.22);
+    transform:scale(.72);opacity:0;transition:transform .28s cubic-bezier(.3,1.35,.5,1),opacity .18s}
+  .botnav-btn.on::before{transform:scale(1);opacity:1}
+  .botnav-btn:active::before{transform:scale(.94);opacity:.85}
+  /* 아래로 스크롤하면 숨기고, 위로 스크롤하면 다시 표시 (nav-compact는 기존 스크롤 감지 사용) */
+  .botnav{transition:transform .32s cubic-bezier(.2,.8,.2,1),opacity .22s ease}
+  body.nav-compact .botnav{transform:translateY(calc(100% + 20px + env(safe-area-inset-bottom,0px)));opacity:0;pointer-events:none}
+  body.nav-compact .backtotop,body.nav-compact .toast{bottom:calc(20px + env(safe-area-inset-bottom,0px))}
+  #view{padding-bottom:90px}
+  .foot{padding-bottom:94px}
+  :root[data-theme="dark"] .botnav{background:linear-gradient(180deg,rgba(30,46,68,.66),rgba(12,22,38,.58));
+    border-color:rgba(255,255,255,.12);
+    box-shadow:inset 0 1px 0 rgba(255,255,255,.16),inset 0 -1px 1px rgba(255,255,255,.04),
+      0 0 0 .5px rgba(0,0,0,.45),0 12px 32px rgba(0,0,0,.45)}
+  :root[data-theme="dark"] .botnav::before{background:radial-gradient(120% 70% at 18% 0%,rgba(255,255,255,.10),transparent 55%),
+      radial-gradient(90% 60% at 100% 100%,rgba(46,155,196,.16),transparent 60%)}
+  :root[data-theme="dark"] .botnav-sub{border-bottom-color:rgba(255,255,255,.08)}
+  :root[data-theme="dark"] .botnav-sub-btn{background:rgba(255,255,255,.06);border-color:rgba(255,255,255,.12);color:var(--star-dim)}
+  :root[data-theme="dark"] .botnav-sub-btn.on{background:var(--s245);border-color:var(--s245);color:#04222e}
+  :root[data-theme="dark"] .botnav-btn{color:#8FA6BC}
+  :root[data-theme="dark"] .botnav-btn.on{color:#6CC6EC}
+  :root[data-theme="dark"] .botnav-btn::before{background:linear-gradient(180deg,rgba(93,187,227,.24),rgba(93,187,227,.10));
+    box-shadow:inset 0 1px 0 rgba(255,255,255,.14),inset 0 0 0 1px rgba(93,187,227,.26)}
+}
+@media(prefers-reduced-motion:reduce){.botnav{transition:opacity .15s}}
+@supports not ((backdrop-filter:blur(1px)) or (-webkit-backdrop-filter:blur(1px))){
+  @media(max-width:760px){
+    .botnav{background:rgba(255,255,255,.97)}
+    :root[data-theme="dark"] .botnav{background:rgba(14,27,46,.97)}
+  }
+}
 </style>
 <script>
 (function(){
