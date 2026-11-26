@@ -31,7 +31,7 @@
   --star:#E8F1F8; --star-dim:#8FA6BC; --star-faint:#5D7488;
   /* light surface */
   --bg:#F6F8FA; --panel:#FFFFFF; --panel-2:#F4F7FA; --ink:#0F1B29; --ink-soft:#45586C;
-  --muted:#7F91A3; --line:#E1E8EF; --line-soft:#EDF2F6;
+  --muted:#66788B; --line:#E1E8EF; --line-soft:#EDF2F6;
   /* scenario system (semantic identity) */
   --obs:#46586B; --s245:#2E9BC4; --s585:#D6483F;
   --accent:#1489AE; --accent-deep:#0C6584; --accent-soft:#E3F2F7;
@@ -1161,6 +1161,33 @@ table.fp-tbl tbody td:first-child:hover{text-decoration-color:var(--accent-deep)
     :root[data-theme="dark"] .botnav{background:rgba(14,27,46,.97)}
   }
 }
+/* ===== 11/26 재검토 보정 ===== */
+.tt{z-index:125}
+@media print{.botnav,.backtotop,.tt,.toast,#app-loading{display:none!important}}
+/* 등급 D 칩: 흰 글자 대비 부족(2.97:1) → 어두운 글자 (C와 같은 방식) */
+[style*="background:#E07B39;"],[style$="background:#E07B39"]{color:#2A1205!important}
+/* 다크 모드: 옅은 등급 배경(…22) 위 등급 글자를 밝게 */
+:root[data-theme="dark"] [style*="background:#2F7D4F22"]{color:#6FD09A!important}
+:root[data-theme="dark"] [style*="background:#2E9BC422"]{color:#6CC6EC!important}
+:root[data-theme="dark"] [style*="background:#D4A01722"]{color:#E8C25A!important}
+:root[data-theme="dark"] [style*="background:#E07B3922"]{color:#F2A472!important}
+:root[data-theme="dark"] [style*="background:#D6483F22"]{color:#F28B80!important}
+/* 다크 모드: 밝은 강조색 원 위 흰 글자 대비 부족 → 어두운 글자 */
+:root[data-theme="dark"] .gate-hint .gh-ic,:root[data-theme="dark"] .rp-sec .n{color:#0A1220}
+@media(max-width:760px){
+  /* 유리 바 불투명도 상향: 밝은 지도·어두운 띠 위에서도 글자가 읽히도록 */
+  .botnav{background:linear-gradient(180deg,rgba(255,255,255,.86),rgba(244,248,251,.74))}
+  :root[data-theme="dark"] .botnav{background:linear-gradient(180deg,rgba(30,46,68,.82),rgba(12,22,38,.76))}
+  /* 숨긴 바에 키보드 포커스가 가지 않도록 */
+  .botnav{transition:transform .32s cubic-bezier(.2,.8,.2,1),opacity .22s ease,visibility 0s}
+  body.nav-compact .botnav{visibility:hidden;transition:transform .32s cubic-bezier(.2,.8,.2,1),opacity .22s ease,visibility 0s .32s}
+  /* 하위 칩 줄까지 펼친 바(약 135px)에 푸터가 가리지 않도록 */
+  .foot{padding-bottom:calc(140px + env(safe-area-inset-bottom,0px))}
+}
+@media(max-width:760px) and (prefers-reduced-motion:reduce){
+  .botnav{transition:opacity .15s,visibility 0s}
+  body.nav-compact .botnav{transition:opacity .15s,visibility 0s .15s}
+}
 </style>
 <script>
 (function(){
@@ -1215,7 +1242,7 @@ table.fp-tbl tbody td:first-child:hover{text-decoration-color:var(--accent-deep)
   <div class="in">
     <div class="lin">
       <b>자료 출처·기간</b><br>
-      확률강우량·시설 수문량은 과거(1991–2020) 대비 미래(2031–2070, SSP2-4.5·SSP5-8.5)로 비교하며, 기상분석 탭은 관측(1973~2020)·시나리오(2011~2100) 연도별 자료를 제공 ·
+      확률강우량·시설 수문량은 과거(1991–2020) 대비 미래(2031–2070, SSP2-4.5·SSP5-8.5)로 비교하며, 기상분석 탭은 관측(1973–2020)·시나리오(2011–2100) 연도별 자료를 제공 ·
       설계홍수량과 배수장 홍수량은 <b>Fragments 상세화 확률강우량</b> 기반으로 산정 ·
       증감량 = 미래 − 과거, 증감률 = 증감량 ÷ 과거 × 100
     </div>
@@ -1469,7 +1496,7 @@ function makeTable(cont,cols,rows,opts={}){
   if(opts.filter){
     const q=el('div','qfilter no-print');
     q.innerHTML=`<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3"/></svg>
-      <input type="search" placeholder="${opts.filterPh||'표 안에서 검색 (이름·지역 등)'}">
+      <input type="search" aria-label="표 안에서 검색" placeholder="${opts.filterPh||'표 안에서 검색 (이름·지역 등)'}">
       <span class="cnt"></span>`;
     const inp=q.querySelector('input'),cnt=q.querySelector('.cnt');
     const txtCols=cols.filter(c=>c.txt).map(c=>c.k);
@@ -2003,7 +2030,9 @@ function applyStateFromPayload(tabId,payload){
   if(typeof obj==='undefined')return;
   try{
     const parsed=JSON.parse(b64DecodeUnicode(payload));
-    if(parsed&&typeof parsed==='object')Object.assign(obj,parsed);
+    const bad=/[<>"'`]/;
+    const ok=v=>typeof v==='string'?!bad.test(v):Array.isArray(v)?v.every(ok):(v&&typeof v==='object')?Object.keys(v).every(k=>!bad.test(k)&&k!=='__proto__'&&ok(v[k])):true;
+    if(parsed&&typeof parsed==='object'&&!Array.isArray(parsed))Object.keys(parsed).forEach(k=>{if(k==='__proto__'||k==='constructor'||k==='prototype'||bad.test(k))return;if(ok(parsed[k]))obj[k]=parsed[k];});
   }catch(e){}
 }
 function encodeCurrentState(tabId){
@@ -2247,7 +2276,7 @@ function introRenderTab(t){
       </ul>
       <h3>시설관리 기능평가 등급 산정</h3>
       <ul>
-        <li>상단 카드에서 <b>산정 방식</b>(① 1차원적 접근(증감률 기준) / ② 다차원적 접근(산정인자·가중치 기준) / ③ 기후성능목표형(달성률 기준))을 고를 수 있으며(처음에는 최종안인 ③이 선택됨), '요약' 구간에서 세 방식의 등급 분포를 나란히 비교합니다. ① 증감률 기준은 카드 아래에서 구간 설정(①-1안 고정간격 · ①-2안 분위수 · ①-3안 Jenks)을 바꿔 볼 수 있습니다. ①·②의 등급 구간 값은 예시이며, ③은 정밀안전진단 등급 구간(지수 × 20)을 따릅니다.</li>
+        <li>상단 카드에서 <b>산정 방식</b>(① 1차원적 접근(증감률 기준) / ② 다차원적 접근(산정인자·가중치 기준) / ③ 기후성능목표형(달성률 기준))을 고를 수 있으며(처음에는 최종안인 ③이 선택됨), '요약' 탭에서 세 방식의 등급 분포를 나란히 비교합니다. ① 증감률 기준은 카드 아래에서 구간 설정(①-1안 고정간격 · ①-2안 분위수 · ①-3안 Jenks)을 바꿔 볼 수 있습니다. ①·②의 등급 구간 값은 예시이며, ③은 정밀안전진단 등급 구간(지수 × 20)을 따릅니다.</li>
         <li>저수지는 이수·치수 부문을 나누어 산정하며, 양수장·배수장 지구는 자료가 없는 인자를 '자료 없음'으로 표시하고 산정에서 뺍니다.</li>
         <li>② 다차원적 접근은 기본으로 <b>1차 설문 선정 인자·동일 가중치</b>(저수지·이수 6, 저수지·치수 4, 양수장 4, 배수장 4개 인자)를 적용합니다(2026.11.19 협의: 2차 AHP 설문 생략, 동일 가중치 적용). 자료가 없는 인자는 자동으로 제외되고 나머지 가중치가 재환산됩니다. '직접 설정'으로 바꾸면 기존처럼 인자와 비율을 자유롭게 조정할 수 있습니다.</li>
         <li>'직접 설정' 모드에서는 각 인자에 원하는 비율(숫자)을 자유롭게 입력하면 됩니다 — 합계가 100이 아니어도 되며, 입력한 비율대로 자동으로 100% 가중치로 환산되어 A(우수)~E(불량) 등급이 즉시 재계산됩니다.</li>
@@ -2319,7 +2348,7 @@ function renderHome(){
       <div class="sh-sub">관측소 · 저수지 · 양수장 지구 · 배수장 지구 · 시군구 · 취약성평가 지표를 검색해보세요</div>
       <div class="sh-searchbar" id="sh-bar">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3"/></svg>
-        <input type="search" id="sh-input" placeholder="예: 전주, 안덕, 사요, 수원시, 취약성 ...">
+        <input type="search" id="sh-input" aria-label="통합 검색" placeholder="예: 전주, 안덕, 사요, 수원시, 취약성 ...">
         <span class="clr" id="sh-clear"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M6 6l12 12M18 6L6 18"/></svg></span>
       </div>
       <div class="sh-chips" id="sh-chips"></div>
@@ -2332,7 +2361,7 @@ function renderHome(){
     <div class="sh-dmg">
       <div class="sh-dmg-head">
         <div class="sh-dmg-title">2025년, 이상기후가 남긴 <b>농업 피해</b></div>
-        <div class="sh-dmg-src">출처 : 기상청 「2025년 이상기후 보고서」(2026)</div>
+        <div class="sh-dmg-src">출처: 기상청 「2025년 이상기후 보고서」(2026)</div>
       </div>
       <div class="sh-clim">
         <div><div class="sh-clim-l">연평균기온</div><div class="sh-clim-v">13.7<small>℃</small></div><div class="sh-clim-n">평년 +1.2℃ · <b>역대 2위</b></div></div>
@@ -2593,7 +2622,7 @@ function siBuild(){
       });
       r.foot=siText(sc,'한 해 동안 대설 · 이상저온 · 집중호우 · 폭염 · 가뭄이 연속으로 발생했습니다',
         {top:'548px',fontSize:'23px',fontWeight:700,color:SI_FAINT});r.foot.classList.add('si-c');
-      r.src=siText(sc,'출처 : 기상청 「2025년 이상기후 보고서」',
+      r.src=siText(sc,'출처: 기상청 「2025년 이상기후 보고서」',
         {top:'594px',fontSize:'19px',fontWeight:400,color:SI_FAINT});r.src.classList.add('si-c');
     }else{
       if(s.img)r.ph=siPhoto(sc,s.img,[.34,.88]); else siGrad(sc);
@@ -3014,11 +3043,11 @@ function renderStudyIntro(){
      h:'분석 범위', p:'과거관측(1991–2020) 대비, SSP2-4.5·SSP5-8.5 시나리오 기상자료(과거 1991–2020 + 미래 2031–2070)로 확률강우량과 이수·치수 시설 수문량 변화를 정량 분석합니다.'},
     {ic:'<rect x="3" y="4" width="18" height="16" rx="2"/><path d="M3 9h18M8 4v16"/>',
      h:'대상 시설', num:(DB.cat3.reservoirs.length+DB.cat4.stations.length+new Set(DB.cat5.sites.map(s=>s.jigu)).size),
-     p:`저수지 ${DB.cat3.reservoirs.length}개소 · 양수장 ${DB.cat4.stations.length}개 지구 · 배수장 ${new Set(DB.cat5.sites.map(s=>s.jigu)).size}개 지구를 대상으로 확률강우량과 시설 수문량 4종으로 기후안전도를 산정합니다 (강우 분석용 관측소 ${DB.cat1.stations.length}개소 별도).`},
+     p:`저수지 ${DB.cat3.reservoirs.length}개소 · 양수장 ${DB.cat4.stations.length}개 지구 · 배수장 ${new Set(DB.cat5.sites.map(s=>s.jigu)).size}개 지구를 대상으로 확률강우량과 시설 수문량 4종으로 기후안전도를 산정합니다 (강우 분석용 관측소 ${DB.cat1.stations.length}개 별도).`},
   ].forEach(c=>{
     const d=el('div','ctxcard');
     d.innerHTML=`<div class="ic"><svg viewBox="0 0 24 24">${c.ic}</svg></div>
-      <h4>${c.h}</h4>${c.num?`<div class="big">${c.num.toLocaleString('ko-KR')}<span style="font-size:13px;color:var(--muted);font-weight:700"> 곳</span></div>`:''}
+      <h4>${c.h}</h4>${c.num?`<div class="big">${c.num.toLocaleString('ko-KR')}<span style="font-size:13px;color:var(--muted);font-weight:700">곳</span></div>`:''}
       <p>${c.p}</p>`;
     ctx.appendChild(d);
   });
@@ -3079,7 +3108,7 @@ function renderStudyIntro(){
     <div class="methcard m-cop"><div class="mh">COPULA</div><div class="ms">의존구조 모델링 · 통계 기반</div>
       <p>일강우와 시간강우 사이의 통계적 관계(코퓰라)를 이용해 시간강우를 만듭니다. 단시간 극치강우 재현에 초점을 둔 방식입니다.</p>
       <div class="prcon"><div class="pc pro"><b>장점</b> 1시간 극치강우 재현이 상대적으로 우수</div>
-      <div class="pc con"><b>단점</b> 충분한 관측자료 필요 · 증감률 최대치 과대 · 평균 SSP2-4.5 <b>${fmtSign(sCop.a,0)}%</b> · SSP5-8.5 <b>${fmtSign(sCop.b,0)}%</b> (SSP5-8.5 최대 ${sCop.bmax}%)</div></div></div>
+      <div class="pc con"><b>단점</b> 충분한 관측자료 필요 · 증감률 최대치 과대 · 평균 증감률 SSP2-4.5 <b>${fmtSign(sCop.a,0)}%</b> · SSP5-8.5 <b>${fmtSign(sCop.b,0)}%</b> (SSP5-8.5 최대 ${sCop.bmax}%)</div></div></div>
     <div class="methcard m-casc"><div class="mh">CASCADE</div><div class="ms">다단계 분해 · 통계 기반</div>
       <p>하루 강우를 반나절 → 몇 시간 → 1시간 단위로 단계적으로 나누며(무작위 캐스케이드) 시간 분포를 만듭니다. 연속 시계열 생성에 유리합니다.</p>
       <div class="prcon"><div class="pc pro"><b>장점</b> 연속 시계열 생성 가능 · 구조가 단순함</div>
@@ -3296,7 +3325,7 @@ function renderCompare(){
     divergeChart2(chost, rows.map(function(r){return {label:r.name, v245:r.v245, v585:r.v585};}), {pct:true,d:1});
     if(typeof autoZoomChart==='function') autoZoomChart(chost);
     var tw=el('div','cmp-scroll');
-    var h='<table class="data cmp-table" id="cmp-table-'+cat+'"><thead><tr><th>'+col1+'</th><th>\uacfc\uac70\uad00\uce21</th><th>SSP2-4.5</th><th>SSP5-8.5</th><th>\uc99d\uac10\ub960 245/585</th><th class="no-print"></th></tr></thead><tbody>';
+    var h='<table class="data cmp-table" id="cmp-table-'+cat+'"><thead><tr><th>'+col1+'</th><th>\uacfc\uac70\uad00\uce21</th><th>SSP2-4.5</th><th>SSP5-8.5</th><th>\uc99d\uac10\ub960 (SSP2-4.5 / SSP5-8.5)</th><th class="no-print"></th></tr></thead><tbody>';
     rows.forEach(function(r){
       h+='<tr><td>'+r.name+'</td><td>'+fmt(r.past,0)+'</td><td>'+fmt(r.s245,0)+'</td><td>'+fmt(r.s585,0)+'</td>'+
         '<td>'+fmtSign(r.v245,1)+'% / '+fmtSign(r.v585,1)+'%</td>'+
@@ -3648,7 +3677,7 @@ function renderRepro(){
   var at=function(arr,mn){return arr[dd.indexOf(mn)];};
   v.innerHTML+='<div class="rp-cards">'
    +'<div class="rp-card"><div class="k">① 연최대치 (MAM)</div><div class="t">평균 연최대치 재현</div><div class="v">Fragments 상대편의 <b>'+rpf(S.MOF.pbias,1)+'%</b>, NSE <b>'+rpf(S.MOF.nse)+'</b><br>커버리지 <b>'+rpf(X.mam_cover.MOF,1)+'%</b> (COPULA '+rpf(X.mam_cover.COPULA,1)+'% · CASCADE '+rpf(X.mam_cover.CASCADE,1)+'%)</div></div>'
-   +'<div class="rp-card"><div class="k">② 극치 호우사상</div><div class="t">일강우 80mm 이상 '+X.ev['80'].n+'개 사상</div><div class="v">Fragments 최대 1h <b>+'+rpf(e80.max1h.b,0)+'%</b> · 3h <b>+'+rpf(e80.max3h.b,0)+'%</b> · 6h <b>+'+rpf(e80.max6h.b,0)+'%</b><br>(비교: COPULA 1h +'+rpf(X.ev['80'].m.COPULA.max1h.b,0)+'% · CASCADE 1h +'+rpf(X.ev['80'].m.CASCADE.max1h.b,0)+'%)</div></div>'
+   +'<div class="rp-card"><div class="k">② 극치 호우사상</div><div class="t">일강우 80 mm 이상 '+X.ev['80'].n+'개 사상</div><div class="v">Fragments 최대 1h <b>+'+rpf(e80.max1h.b,0)+'%</b> · 3h <b>+'+rpf(e80.max3h.b,0)+'%</b> · 6h <b>+'+rpf(e80.max6h.b,0)+'%</b><br>(비교: COPULA 1h +'+rpf(X.ev['80'].m.COPULA.max1h.b,0)+'% · CASCADE 1h +'+rpf(X.ev['80'].m.CASCADE.max1h.b,0)+'%)</div></div>'
    +'<div class="rp-card"><div class="k">③ 재현빈도별 분위</div><div class="t">Gumbel 10~200년 확률강우량</div><div class="v">Fragments 100년: 1h <b>+'+rpf(at(q200,60),0)+'%</b>, 3h <b>+'+rpf(at(q200,180),0)+'%</b>, 6h <b>+'+rpf(at(q200,360),0)+'%</b><br>24·48h <b>±2% 이내</b>, 재현빈도와 무관하게 일정</div></div>'
    +'</div>';
   v.innerHTML+='<div class="rp-concl">★ 핵심 결론 &mdash; 세 단계를 종합하면 <b style="color:'+METH_COL.MOF+'">Fragments</b>의 관측 재현성이 가장 우수합니다(1시간 극치는 COPULA가 더 근접). '
@@ -3662,15 +3691,15 @@ function renderRepro(){
   var th='<div class="rp-scroll"><table class="rp-tbl"><thead><tr><th>기법</th><th>연최대치 상대편의<br>PBIAS (%)</th><th>RMSE<br>(mm)</th><th>NSE</th><th>KGE</th><th>lag-1<br>자기상관</th><th>커버리지<br>(%)</th></tr></thead><tbody>';
   mo.forEach(function(m){var r=S[m];var bst=(m==='MOF');
     th+='<tr'+(bst?' class="rp-best"':'')+'><td style="font-weight:700;color:'+reproCol(m)+'">'+MN(m)+(bst?' ✔':'')+'</td><td>'+rpf(r.pbias,1)+'</td><td>'+rpf(r.rmse)+'</td><td>'+rpf(r.nse)+'</td><td>'+rpf(r.kge)+'</td><td>'+rpf(r.lag1)+'</td><td>'+rpf(X.mam_cover[m],1)+'</td></tr>';});
-  th+='<tr><td colspan="5" style="text-align:right;color:#888;font-size:12px">관측 lag-1 자기상관 (기준)</td><td style="color:#888">'+rpf(d.lag1_obs)+'</td><td></td></tr></tbody></table></div>';
-  v.innerHTML+=th+'<div class="subttl" style="margin-top:14px">효율지수 비교 <span style="font-weight:400;color:#888">(NSE·KGE, 1에 가까울수록 재현 우수 · 막대 값은 지수×100)</span></div>'+reproLegend()+'<div id="rp-bar" class="rp-chart"></div>';
+  th+='<tr><td colspan="5" style="text-align:right;color:var(--muted);font-size:12px">관측 lag-1 자기상관 (기준)</td><td style="color:var(--muted)">'+rpf(d.lag1_obs)+'</td><td></td></tr></tbody></table></div>';
+  v.innerHTML+=th+'<div class="subttl" style="margin-top:14px">효율지수 비교 <span style="font-weight:400;color:var(--muted)">(NSE·KGE, 1에 가까울수록 재현 우수 · 막대 값은 지수×100)</span></div>'+reproLegend()+'<div id="rp-bar" class="rp-chart"></div>';
   // ② 호우사상
   v.innerHTML+='<div class="rp-sec"><span class="n">2</span><h3>극치 호우사상 재현</h3></div><div class="rp-sub">일강우가 기준 이상인 날만 골라 하루 안의 최대 1·3·6시간 강우와 강우집중도(최대 1·3시간 강우 ÷ 일강우)를 비교 · 30년을 두 기간으로 나눠 서로 검증(교차검증)</div>'
     +'<div class="rp-ctrl" id="rp-evctl"></div><div id="rp-ev"></div>';
   // ③ 분위
   v.innerHTML+='<div class="rp-sec"><span class="n">3</span><h3>재현빈도별 확률강우량(분위) 재현</h3></div><div class="rp-sub">지속시간별 연최대치로 Gumbel 분포(연최대치로 확률강우량을 구하는 표준 방법)를 적용해 확률강우량을 산정하여 관측과 비교 · 30년을 두 기간으로 나눠 서로 검증(교차검증)</div>'
     +'<div class="rp-ctrl" id="rp-qctl"></div><div id="rp-q"></div>'
-    +'<div class="subttl" style="margin-top:18px">연최대치 크기순 비교도(Q-Q plot) <span style="font-weight:400;color:#888">(8개소 × 30년, 같은 순위끼리 비교 · 점선 1:1에 붙을수록 분포 전체가 일치)</span></div>'
+    +'<div class="subttl" style="margin-top:18px">연최대치 크기순 비교도(Q-Q plot) <span style="font-weight:400;color:var(--muted)">(8개소 × 30년, 같은 순위끼리 비교 · 점선 1:1에 붙을수록 분포 전체가 일치)</span></div>'
     +'<div class="rp-ctrl" id="rp-qqctl"></div><div class="rp-2col"><div>'+reproLegend()+'<div id="rp-qq" class="rp-chart" style="max-width:560px"></div></div><div id="rp-qqtb"></div></div>';
   // ④ 관측소별
   v.innerHTML+='<div class="rp-sec"><span class="n">4</span><h3>관측소별 상세 재현성</h3></div><div id="rp-filter" class="rp-filter"></div><div id="rp-detail"></div>';
@@ -3691,23 +3720,23 @@ function renderRepro(){
 function reproEvent(){
   var X=REPRO2,E=X.ev[RS.thr],host=$('#rp-ev');if(!host)return;
   var mo=REPRO.methods,K=['max1h','max3h','max6h','I1','I3'],KL=['최대 1h','최대 3h','최대 6h','집중도 1h','집중도 3h'];
-  host.innerHTML='<div class="rp-2col"><div><div class="subttl">관측 대비 상대편의 (%) <span style="font-weight:400;color:#888">· '+E.n+'개 사상 · 회색 띠 ±10%</span></div>'+reproLegend()+'<div id="rp-evb" class="rp-chart"></div></div>'
-    +'<div><div class="subttl">사상별 앙상블 커버리지 (%) <span style="font-weight:400;color:#888">· 점선 = 명목 90%</span></div>'+reproLegend()+'<div id="rp-evc" class="rp-chart"></div></div></div>';
+  host.innerHTML='<div class="rp-2col"><div><div class="subttl">관측 대비 상대편의 (%) <span style="font-weight:400;color:var(--muted)">· '+E.n+'개 사상 · 회색 띠 ±10%</span></div>'+reproLegend()+'<div id="rp-evb" class="rp-chart"></div></div>'
+    +'<div><div class="subttl">사상별 앙상블 커버리지 (%) <span style="font-weight:400;color:var(--muted)">· 점선 = 명목 90%</span></div>'+reproLegend()+'<div id="rp-evc" class="rp-chart"></div></div></div>';
   var tb='<div class="rp-scroll" style="margin-top:10px"><table class="rp-tbl"><thead><tr><th>지표</th><th>관측 평균</th>';
   mo.forEach(function(m){tb+='<th>'+MN(m)+'</th>';});tb+='</tr></thead><tbody>';
   K.forEach(function(k,i){var u=(k.charAt(0)==='I')?'':' mm';var dg=(k.charAt(0)==='I')?2:1;
     tb+='<tr><td style="font-weight:700">'+KL[i]+'</td><td>'+rpf(E.m.MOF[k].o,dg)+u+'</td>';
-    mo.forEach(function(m){var c=E.m[m][k];tb+='<td>'+rpf(c.s,dg)+u+' <span style="color:#999;font-size:11px">('+(c.b>=0?'+':'')+rpf(c.b,0)+'%)</span></td>';});tb+='</tr>';});
+    mo.forEach(function(m){var c=E.m[m][k];tb+='<td>'+rpf(c.s,dg)+u+' <span style="color:var(--muted);font-size:11px">('+(c.b>=0?'+':'')+rpf(c.b,0)+'%)</span></td>';});tb+='</tr>';});
   host.innerHTML+=tb+'</tbody></table></div>';
   try{ groupBar($('#rp-evb'),KL,mo.map(function(m){return {name:MN(m),color:reproCol(m),vals:K.map(function(k){return E.m[m][k].b;})};}),{w:640,h:300,unit:'%',tipSuffix:'',showVal:true,signed:true,band:[-10,10]}); }catch(e){}
   try{ groupBar($('#rp-evc'),KL.slice(0,3),mo.map(function(m){return {name:MN(m),color:reproCol(m),vals:['max1h','max3h','max6h'].map(function(k){return E.m[m][k].c;})};}),{w:480,h:300,ymin:0,ymax:100,unit:'%',tipSuffix:'',showVal:true,refLine:90,refLabel:'명목 90%'}); }catch(e){}
 }
 function reproQuant(){
   var X=REPRO2,host=$('#rp-q');if(!host)return;var mo=REPRO.methods,T=RS.T;
-  host.innerHTML='<div class="subttl">'+T+'년 빈도 확률강우량의 지속시간별 상대편의 (%) <span style="font-weight:400;color:#888">· 0에 가까울수록 우수, 회색 띠 ±10% · 저수지 설계 1~18h, 배수장 24·48h</span></div>'+reproLegend()+'<div id="rp-qline" class="rp-chart"></div>';
+  host.innerHTML='<div class="subttl">'+T+'년 빈도 확률강우량의 지속시간별 상대편의 (%) <span style="font-weight:400;color:var(--muted)">· 0에 가까울수록 우수, 회색 띠 ±10% · 저수지 설계 1~18h, 배수장 24·48h</span></div>'+reproLegend()+'<div id="rp-qline" class="rp-chart"></div>';
   var labs=X.qdurs.map(function(x){return (x/60)+'h';});
   try{ lineChart($('#rp-qline'),mo.map(function(m){return {name:MN(m),color:reproCol(m),pts:X.q[T][m].map(function(y,i){return {x:i,y:y};})};}),{w:960,h:320,labels:labs,ylabel:'상대편의 (%)',unit:'%',band:[-10,10],zeroLine:true}); }catch(e){}
-  var tb='<div class="subttl" style="margin-top:14px">분위 커버리지 (%)'+helpIcon('커버리지')+' <span style="font-weight:400;color:#888">· 8개소 × 6개 재현빈도 중 관측 확률강우량이 30회 모의 범위(5–95%)에 든 비율 · Fragments는 24·48시간 편의가 ±2% 이내로 작고 1~4시간은 약 10~23% 과대이며, 모의 범위가 좁아 커버리지는 낮게 나올 수 있으므로 편의와 함께 해석</span></div><div class="rp-scroll"><table class="rp-tbl"><thead><tr><th>기법</th>';
+  var tb='<div class="subttl" style="margin-top:14px">분위 커버리지 (%)'+helpIcon('커버리지')+' <span style="font-weight:400;color:var(--muted)">· 8개소 × 6개 재현빈도 중 관측 확률강우량이 30회 모의 범위(5–95%)에 든 비율 · Fragments는 24·48시간 편의가 ±2% 이내로 작고 1~4시간은 약 10~23% 과대이며, 모의 범위가 좁아 커버리지는 낮게 나올 수 있으므로 편의와 함께 해석</span></div><div class="rp-scroll"><table class="rp-tbl"><thead><tr><th>기법</th>';
   labs.forEach(function(l){tb+='<th>'+l+'</th>';});tb+='</tr></thead><tbody>';
   mo.forEach(function(m){tb+='<tr><td style="font-weight:700;color:'+reproCol(m)+'">'+MN(m)+'</td>';X.qcov[m].forEach(function(c){tb+='<td>'+rpf(c,0)+'</td>';});tb+='</tr>';});
   host.innerHTML+=tb+'</tbody></table></div>';
@@ -3752,8 +3781,8 @@ function reproDetail(){
   var d=REPRO,X=REPRO2,st=RS.st,host=$('#rp-detail');if(!host)return;host.innerHTML='';
   var mo=d.methods,durs=d.durs;
   var nm=(d.stations.find(function(s){return s.id===st;})||{}).name||st;
-  host.innerHTML+='<div class="subttl">'+nm+' &middot; ① 지속시간별 연최대치 상대편의 <span style="font-weight:400;color:#888">(관측 대비 %, 0에 가까울수록 우수)</span></div>'+reproLegend()+'<div id="rp-idf" class="rp-chart"></div>';
-  host.innerHTML+='<div class="subttl" style="margin-top:16px">'+nm+' &middot; ③ '+RS.T+'년 빈도 확률강우량 상대편의 <span style="font-weight:400;color:#888">(재현빈도는 ③의 선택을 따름)</span></div>'+reproLegend()+'<div id="rp-qst" class="rp-chart"></div>';
+  host.innerHTML+='<div class="subttl">'+nm+' &middot; ① 지속시간별 연최대치 상대편의 <span style="font-weight:400;color:var(--muted)">(관측 대비 %, 0에 가까울수록 우수)</span></div>'+reproLegend()+'<div id="rp-idf" class="rp-chart"></div>';
+  host.innerHTML+='<div class="subttl" style="margin-top:16px">'+nm+' &middot; ③ '+RS.T+'년 빈도 확률강우량 상대편의 <span style="font-weight:400;color:var(--muted)">(재현빈도는 ③의 선택을 따름)</span></div>'+reproLegend()+'<div id="rp-qst" class="rp-chart"></div>';
   var es=X.evst[st];
   if(es){var t2='<div class="subttl" style="margin-top:16px">'+nm+' &middot; ② 극치 호우사상(80 mm 이상) 상대편의</div><div class="rp-scroll"><table class="rp-tbl"><thead><tr><th>지표</th>';
     mo.forEach(function(m){t2+='<th>'+MN(m)+'</th>';});t2+='</tr></thead><tbody>';
@@ -3762,14 +3791,14 @@ function reproDetail(){
     host.innerHTML+=t2+'</tbody></table></div>';}
   var stt=d.structure[st],stats=d.stats;
   var SLAB={mean:'평균',std:'표준편차',skew:'왜도',lag1:'lag-1 자기상관',wet_frac:'강우시간 비율(비가 온 시간)',p99:'99퍼센타일',maxhr:'최대 시간강우'};
-  var tb='<div class="subttl" style="margin-top:18px">'+nm+' &middot; 내부구조 통계 재현 <span style="font-weight:400;color:#888">(관측 vs 상세화 평균, 괄호=상대편의%)</span></div>';
+  var tb='<div class="subttl" style="margin-top:18px">'+nm+' &middot; 내부구조 통계 재현 <span style="font-weight:400;color:var(--muted)">(관측 vs 상세화 평균, 괄호=상대편의%)</span></div>';
   tb+='<div class="rp-scroll"><table class="rp-tbl"><thead><tr><th>통계량</th><th>관측</th>';
   mo.forEach(function(m){tb+='<th>'+MN(m)+'</th>';});
   tb+='</tr></thead><tbody>';
   stats.forEach(function(s){
     var ref=(stt[mo[0]]&&stt[mo[0]][s])?stt[mo[0]][s].obs:null;
     tb+='<tr><td style="font-weight:700">'+(SLAB[s]||s)+'</td><td>'+rpf(ref)+'</td>';
-    mo.forEach(function(m){var c=stt[m]&&stt[m][s];tb+='<td>'+(c?rpf(c.sim)+' <span style="color:#999;font-size:11px">('+(c.rb>=0?'+':'')+rpf(c.rb,1)+'%)</span>':'-')+'</td>';});
+    mo.forEach(function(m){var c=stt[m]&&stt[m][s];tb+='<td>'+(c?rpf(c.sim)+' <span style="color:var(--muted);font-size:11px">('+(c.rb>=0?'+':'')+rpf(c.rb,1)+'%)</span>':'-')+'</td>';});
     tb+='</tr>';
   });
   host.innerHTML+=tb+'</tbody></table></div>';
@@ -4159,7 +4188,7 @@ function c3draw(){
   // detail table
   const tp=el('div','panel');
   tp.innerHTML=`<div class="panel-h"><h3>저수지별 상세 결과 (${dTable.length}개소)</h3>
-    <div class="hint">필요저수용량 단위 천m³ · 등급 1(취약)~3(양호)${C3.facility!=='전체'?' · 시설 필터 적용중':''}</div></div><div id="c3-tblhost"></div>`;
+    <div class="hint">필요저수용량 단위 천m³ · 등급 1(취약)~3(양호)${C3.facility!=='전체'?' · 시설 필터 적용 중':''}</div></div><div id="c3-tblhost"></div>`;
   body.appendChild(tp);
   makeTable($('#c3-tblhost'),[
     {k:'name',label:'시설명',txt:true},{k:'sido',label:'시도',txt:true},{k:'sigun',label:'시군',txt:true},
@@ -4234,9 +4263,9 @@ function c4draw(){
     if(sel==='전체'||!DB.cat4.stations[sel]||!DB.cat4.stations[sel].obscode){
       const gp=el('div','panel');
       gp.innerHTML='<div class="panel-h"><h3>관개기 월별 증발산량 · 유효우량</h3><div class="hint">조용수량 증감 해설</div></div>'+
-        '<div class="panel-b"><div class="note no-print">&#9432; <span>상단 <b>양수장</b> 선택 상자에서 지구를 고르면, 해당 관측소의 <b>관개기(5~9월) 월별 증발산량·유효우량</b>과 그 <b>증발산량-유효우량 잔차</b>를 과거(1991~2020) · SSP2-4.5 · SSP5-8.5(2031~2070) 막대로 비교합니다.</span></div></div>';
+        '<div class="panel-b"><div class="note no-print">&#9432; <span>상단 <b>양수장</b> 선택 상자에서 지구를 고르면, 해당 관측소의 <b>관개기(5~9월) 월별 증발산량·유효우량</b>과 그 차이인 <b>순 물수요(증발산량 − 유효우량)</b>를 과거(1991~2020) · SSP2-4.5 · SSP5-8.5(2031~2070) 막대로 비교합니다.</span></div></div>';
       mwrap.appendChild(gp); body.appendChild(mwrap);
-      if(!gateOn(C4,C4.region==='전체'&&(C4.station==='전체'||C4.station==null)))gateApply(C4,$('#c4-body'),'지역 또는 양수장을 선택해 보세요',c4draw);
+      if(!gateOn(C4,C4.region==='전체'&&(C4.station==='전체'||C4.station==null)))gateApply(C4,$('#c4-body'),'시도 또는 양수장을 선택해 보세요',c4draw);
       return;
     }
     const stn=DB.cat4.stations[sel], MO=DB.cat4.monthly[stn.obscode];
@@ -4278,7 +4307,7 @@ function c4draw(){
     groupBar($('#c4-net'), MON, netBars, {xlabel:'월',w:820,h:280});
     if(typeof autoZoomChart==='function'){autoZoomChart($('#c4-ev'));autoZoomChart($('#c4-pe'));autoZoomChart($('#c4-net'));}
   }
-  if(!gateOn(C4,C4.region==='전체'&&(C4.station==='전체'||C4.station==null)))gateApply(C4,$('#c4-body'),'지역 또는 양수장을 선택해 보세요',c4draw);
+  if(!gateOn(C4,C4.region==='전체'&&(C4.station==='전체'||C4.station==null)))gateApply(C4,$('#c4-body'),'시도 또는 양수장을 선택해 보세요',c4draw);
 }
 
 /* ================= CAT5 : 배수장 홍수량 ================= */
@@ -4443,7 +4472,7 @@ function c5draw(){
     });
   }
   makeTable($('#c5-grpstat'),[
-    {k:'name',label:gpName,txt:true},{k:'n',label:useJigu?'대상(지구,개)':'대상(구역,개)',d:0},
+    {k:'name',label:gpName,txt:true},{k:'n',label:useJigu?'대상 지구(개)':'대상 구역(개)',d:0},
     {k:'inc',label:'증가(개)',d:0},{k:'dec',label:'감소(개)',d:0},
     {k:'r245',label:'평균증감률(SSP2-4.5)',d:2,type:'rate'},{k:'r585',label:'평균증감률(SSP5-8.5)',d:2,type:'rate'},
   ],groupRows,{id:'c5-grpstat-table'});
@@ -4656,8 +4685,8 @@ function c6draw(){
     const lvl=gcmSpreadLevel(spread);
     const sumBox=el('div','c6-summary');
     sumBox.innerHTML=`<div class="c6-summary-dot" style="background:${lvl.c}"></div>
-      <div>이 조건(${MN(C6.method)}·${C6.tt}·${C6.scn})에서는 <b>${top.gcm}</b> 모델이 MME보다 ${top.dev>=0?'높게':'낮게'}
-      가장 크게 벗어나고(이탈도 ${fmtSign(top.dev,2)}%), <b>${bottom.gcm}</b> 모델이 가장 적게 벗어납니다.
+      <div>이 조건(${MN(C6.method)}·${C6.tt}·${C6.scn})에서는 <b>${top.gcm}</b> 모델이 MME에서
+      가장 크게 벗어나고(${top.dev>=0?'높은':'낮은'} 쪽, 이탈도 ${fmtSign(top.dev,2)}%), <b>${bottom.gcm}</b> 모델이 가장 적게 벗어납니다.
       18개 모델 간 최대 격차는 <b>${fmt(spread,1)}%p</b>로 모델 간 불확실성이
       <b style="color:${lvl.c}">${lvl.t}</b> 수준입니다.</div>`;
     body.appendChild(sumBox);
@@ -4764,7 +4793,7 @@ const IND_COL={
 const IND_DESC={
   ClimateExp:'미래 기후노출 정도 — 강수량·가뭄지수 등 기후요인 변화의 크기를 나타냅니다. 1등급일수록 노출이 큽니다.',
   Sens:'노출 대상(시설·인구 등)의 민감도 — 동일한 기후노출에도 피해를 받기 쉬운 정도입니다. 1등급일수록 민감합니다.',
-  AdaptCapacity:'적응능력 부족 정도를 나타내는 지표로, 1등급일수록 재정·인프라 등 대응 역량이 부족해 취약에 기여합니다.',
+  AdaptCapacity:'적응능력 부족 정도를 나타내는 지표로, 1등급일수록 재정·인프라 등 대응 역량이 부족해 취약성을 높입니다.',
   Vulnerability:'기후노출·민감도·적응능력을 종합한 취약성 지표입니다. 1등급일수록 취약합니다.',
   Impact:'취약성에 재해 강도를 결합한 잠재적 영향(리스크) 지표입니다. 1등급일수록 영향이 큽니다.',
 };
@@ -5346,7 +5375,7 @@ const GLOSSARY={
   '고정·임의지속시간':'고정시간은 정시 기준(1~2시, 2~3시…)으로 자른 강우이고, 임의지속시간은 시작 시각과 관계없이 연속 n시간 동안의 최대 강우입니다. 설계에는 보통 임의지속시간을 씁니다.',
   'Qpeak':'첨두홍수량 — 홍수 때 저수지로 들어오는 최대 유량(m³/s)입니다.',
   '커버리지':'같은 일강우를 30회 상세화한 결과의 5~95% 범위 안에 관측값이 들어오는 비율입니다. 90%에 가까울수록 좋습니다.',
-  '취약성등급':'기후변화 취약성 등급(1~3등급)으로, 1등급에 가까울수록 취약합니다. 저수지 이수는 저수지별, 저수지 치수는 소재 시군구, 양수장·배수장은 시도 평균 값을 씁니다.',
+  '취약성등급':'기후변화 취약성 등급(1~3등급)으로, 1등급에 가까울수록 취약합니다. 저수지 이수는 저수지별, 저수지 치수는 소재 시군구, 양수장·배수장은 시도 평균값을 씁니다.',
 };
 function helpIcon(term){
   const desc=GLOSSARY[term];
@@ -5458,7 +5487,7 @@ function gradeTargetStateTxt(t){const i=GRADE_TSTATE.indexOf(t),lo=i>0?GRADE_TST
 const GRADE_DISC_SET={res_isu:['vuln','ratio','benefit','safety'],res_chisu:['vuln_fld','prerel','safety'],pump:['vuln_sido','benefit','safety'],drain:['vuln_sido','drcap','safety']};
 function gradeDiscLabel(mode,k){
   if(k==='vuln_sido')return mode==='pump'?'이수(가뭄) 취약성 등급':'치수(홍수) 취약성 등급';
-  return {vuln:'이수(가뭄) 취약성 등급',vuln_fld:'치수(홍수) 취약성 등급',ratio:'유역배율',benefit:'수혜면적',prerel:'사전방류수문 설치 여부',drcap:'홍수배제시설 규모',safety:'구조적 진단 (안전등급)'}[k];
+  return {vuln:'이수(가뭄) 취약성 등급',vuln_fld:'치수(홍수) 취약성 등급',ratio:'유역배율',benefit:'수혜면적',prerel:'사전방류수문 설치 여부',drcap:'홍수배제시설 규모',safety:'안전등급'}[k];
 }
 function gradeQuint(mode,key){
   const v=gradeRows(mode).map(r=>gradeRawValue(mode,r.raw,key,'SSP5-8.5')).filter(x=>x!=null&&!isNaN(x)).sort((a,b)=>a-b);
@@ -5728,7 +5757,7 @@ function gradeBuildBasis(body,M,mode,scn,withScore){
     const stb=`<table class="data" style="margin:2px 0 4px;font-size:12px"><thead><tr><th>상태</th><th>증감률</th><th>상태 점수</th><th>달성률 점수 (× 16)</th></tr></thead><tbody>${GRADE_TSTATE.map(t=>`<tr><td><b>${t[0]}</b></td><td>${gradeTargetStateTxt(t)}</td><td>${t[1]}</td><td>${t[1]*16}점</td></tr>`).join('')}</tbody></table>`;
     data=`<b>상태 판정</b><span>${GRADE_RATE_SRC[mode]} · ${scn} (과거 1991–2020 대비)로 정밀안전진단의 결함 상태평가처럼 <b>상태 a~e</b>를 판정하고, 상태 점수(5~1점)에 16을 곱해 달성률 점수(최대 80점)로 환산합니다. 경계값과 같으면 더 양호한 상태로 봅니다(예: 정확히 10%는 b).${mode==='pump'?' 양수장 지구는 하천 수위·유량의 영향이 더 커서 조용수량 증감률만으로는 한계가 있습니다.':''}${stb}</span>
       <b>총점 구성</b><span><b>달성률 점수</b>(상태 a 80 · b 64 · c 48 · d 32 · e 16점) + <b>재량점수</b>(최대 20점) = 100점 · 재량까지 포함해 100점이며 별도 가산은 없습니다.</span>
-      <b>재량점수</b><span>인자 ${set.filter(k=>gradeCoverage(mode,k,scn)[0]).length}개를 각 20점 만점(0·5·10·15·20점 등)으로 매긴 뒤 <b>같은 비중으로 평균</b>합니다. 자료가 없는 인자는 빼고 나머지 인자로 평균합니다(20점을 나머지 인자로 나눔).${tb}</span>
+      <b>재량점수</b><span>인자 ${set.filter(k=>gradeCoverage(mode,k,scn)[0]).length}개를 각 20점 만점(0·5·10·15·20점 등)으로 매긴 뒤 <b>같은 비중으로 평균</b>합니다. 자료가 없는 인자는 빼고 나머지 인자의 점수(각 20점 만점)를 평균합니다.${tb}</span>
       <b>정밀안전진단과 비교</b><span>달성률 점수는 정밀안전진단의 결함 상태평가(a~e → 5~1점)를 증감률에 적용한 것이고, 등급 구간은 정밀안전진단 종합평가지수(1~5) 구간(A 4.5 · B 3.5 · C 2.5 · D 1.5)에 20을 곱한 값입니다. 정밀안전진단은 결함 a~e를 5~1점으로 매기고 단계마다 중요도(W, 합 100·규정값 ±20% 조정)와 조정계수(A — 등급 A 1 · B 2 · C 3 · D·E 6)를 반영한 <b>가중평균</b> Σ(E×A×W)/Σ(A×W)을 씁니다. 재량점수는 이 가중평균에서 인자 중요도를 같게(1/인자 수) 두고 조정계수를 적용하지 않은 형태입니다(잠정).</span>`;
   }
   p.innerHTML=`<div class="panel-h"><h3>${g.no} ${g.t} — 산정 기준</h3><div class="hint">${g.s} · ${M==='target'?'상태 a~e(증감률 10%p 간격)·등급 구간(정밀안전진단 지수 × 20) 적용 · 상태 경계·재량 점수표는 잠정':'구간 값은 예시 (설문·자문으로 확정)'}</div></div>
@@ -5913,8 +5942,8 @@ function gradeDrawNeed0(mode,withScore,scn){
     <div class="seg" id="grade-need-t">${[[90,'최종 목표 A (90점)'],[70,'중간 목표 B (70점)']].map(([v,lb])=>`<button type="button" class="${T===v?'on':''}" data-v="${v}">${lb}</button>`).join('')}</div>`;
   host.appendChild(ctl);
   const sum=el('div');sum.style.cssText='font-size:14px;line-height:1.7;margin-bottom:12px';
-  sum.innerHTML=`목표 ${gl}등급(${T}점) 미달 <b>${L.length}${U}</b> / 전체 ${withScore.length}${U} · 시설 보강(상태 상향)으로 도달 가능 <b>${okL.length}</b>`
-    +(ng?` · 상태 a(80점)로도 미달(재량 인자 개선 필요) <b style="color:${GRADE_INFO.E.c}">${ng}</b>`:'')
+  sum.innerHTML=`목표 ${gl}등급(${T}점) 미달 <b>${L.length}${U}</b> / 전체 ${withScore.length}${U} · 시설 보강(상태 상향)으로 도달 가능 <b>${okL.length}${U}</b>`
+    +(ng?` · 상태 a(80점)로도 미달(재량 인자 개선 필요) <b style="color:${GRADE_INFO.E.c}">${ng}${U}</b>`:'')
     +(vol&&okL.length?` · 추가 확보 필요 저수용량 합계 <b>${fmt(tot,0)}천m³</b> (${scn})`:'');
   host.appendChild(sum);
   if(!L.length){host.appendChild(el('div','hint',`목표 ${gl}등급(${T}점)에 못 미치는 시설이 없습니다.`));}
@@ -5965,7 +5994,7 @@ function gradeDraw0(){
           <span class="sumcard-lead-pct">전체의 ${fmt(worstPct,1)}%</span></div>
       </div>
       <div class="sumcard-mini">
-        <div><span class="mk-lb">평가 대상</span><span class="mk-v">${withScore.length}<small>개</small></span></div>
+        <div><span class="mk-lb">평가 대상</span><span class="mk-v">${withScore.length}<small>${GRADE.type==='res'?'개소':'개 지구'}</small></span></div>
         <div><span class="mk-lb">${M==='target'?'총점 중앙값':'평균 '+(M==='multi'?'종합점수':RK.lb.replace('(%)',''))}</span><span class="mk-v">${fmt(M==='target'?(()=>{const v=withScore.map(r=>r.score).sort((x,y)=>x-y),h=Math.floor(v.length/2);return v.length?(v.length%2?v[h]:(v[h-1]+v[h])/2):null;})():meanScore,1)}<small>${M==='rate'?'%':'/100'}</small></span></div>
         <div><span class="mk-lb">가장 시급</span><span class="mk-v mk-name">${topName}</span></div>
       </div>
@@ -6152,14 +6181,15 @@ function gradeDraw0(){
 function initLinkCopy(){
   const btn=$('#link-copy-btn');
   if(!btn)return;
+  const ORIG=btn.innerHTML;
   btn.addEventListener('click',()=>{
     const id=document.body.dataset.page;
     const payload=encodeCurrentState(id);
     const url=location.origin+location.pathname+'#'+id+(payload?'~'+payload:'');
     const done=()=>{btn.classList.add('copied');
       const label=btn.querySelector('span')||btn;
-      const old=btn.innerHTML;btn.innerHTML=btn.innerHTML.replace('현재 화면 링크 복사','복사됨 ✓');
-      setTimeout(()=>{btn.classList.remove('copied');btn.innerHTML=old;},1800);};
+      clearTimeout(btn._t);btn.innerHTML=ORIG.replace('현재 화면 링크 복사','복사됨 ✓');
+      btn._t=setTimeout(()=>{btn.classList.remove('copied');btn.innerHTML=ORIG;},1800);};
     if(navigator.clipboard&&navigator.clipboard.writeText){
       navigator.clipboard.writeText(url).then(done).catch(()=>{
         try{const ta=document.createElement('textarea');ta.value=url;document.body.appendChild(ta);ta.select();document.execCommand('copy');document.body.removeChild(ta);done();}catch(e){}
@@ -6223,7 +6253,9 @@ function initBackToTop(){
   btn.onclick=()=>window.scrollTo({top:0,behavior:'smooth'});
   let lastY=window.scrollY;
   const onScroll=()=>{const y=window.scrollY;btn.classList.toggle('show',y>420);
-    if(Math.abs(y-lastY)>8){document.body.classList.toggle('nav-compact',y>lastY&&y>160);lastY=y;}};
+    const atEnd=window.innerHeight+y>=document.documentElement.scrollHeight-4;
+    if(atEnd){document.body.classList.remove('nav-compact');lastY=y;}
+    else if(Math.abs(y-lastY)>8){document.body.classList.toggle('nav-compact',y>lastY&&y>160);lastY=y;}};
   window.addEventListener('scroll',onScroll,{passive:true});
   onScroll();
 }
@@ -6232,7 +6264,7 @@ buildNav();route();initScroll();initThemeToggle();initLinkCopy();initChartZoom()
 <!-- v4.2 키보드 조작: div·span으로 만든 클릭 요소를 Tab·Enter·Space로 조작 -->
 <script>
 (function(){
-  var SEL='.modal-h .x,.modal-tab,.sh-item,.sh-searchbar .clr,.cmp-del';
+  var SEL='.modal-h .x,.modal-tab,.sh-item,.sh-searchbar .clr,.cmp-del,.sh-chip';
   function mark(root){
     (root||document).querySelectorAll(SEL).forEach(function(e){
       if(e.tagName==='BUTTON'||e.tagName==='A')return;
